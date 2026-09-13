@@ -8,7 +8,7 @@ A página inicial agora é a biblioteca. Não há painel flutuante nem abertura 
 2. Na biblioteca, busque por nome de modelo ou criador. O catálogo Snapmaker é carregado em páginas e permite filtrar por criador, tipo de arquivo e ordenação. A busca é local sobre os modelos carregados, não uma API de busca remota da Snapmaker.
 3. Clique no coração para salvar um modelo. Os favoritos ficam em `model-library/favorites.json` dentro do perfil, independentes da porta local.
 4. Abra um modelo para ver sua descrição e licença. **Importar no projeto** baixa STL/3MF disponível e aciona a abertura normal do Orca. O limite de download é 100 MiB. O aplicativo pode pedir que você revise configurações trazidas pelo projeto.
-5. Para Thingiverse, abra **Integrações → Conectar Thingiverse** e informe a credencial do seu próprio aplicativo registrado. A credencial permanece somente na memória até encerrar a sessão. Não coloque credenciais no Git ou em mensagens.
+5. Para Thingiverse, abra **Integrações → Conectar Thingiverse** e informe a credencial do seu próprio aplicativo registrado. A credencial é salva no cofre de credenciais do sistema e restaurada ao abrir o aplicativo, inclusive após atualizações. Desconectar remove a chave salva. Não coloque credenciais no Git ou em mensagens.
 
 ## Disponibilidade dos serviços
 
@@ -71,3 +71,10 @@ Plataformas desconectadas mostram “Busca indisponível”, sem apresentar zero
 ### Relevância da busca
 
 Ao trocar de plataforma, a ordenação passa a usar o padrão do catálogo de destino: Thingiverse começa em Relevância, sem herdar Mais recentes do Snapmaker. Nesse modo, títulos contendo todas as palavras da consulta (palavras inteiras, sem diferenciar acentos/maiúsculas) têm prioridade dentro de cada página retornada. A ordem relativa da API é preservada em cada grupo e os demais modos mantêm a ordem da plataforma. Isso não traduz consultas nem altera a contagem ou seleciona resultados de páginas ainda não consultadas. A API documentada do Thingiverse não oferece filtro por cor ou número de cores de impressão.
+
+
+### Persistência das credenciais
+
+O serviço do cofre `com.rodrigogrosa.u1lab.thingiverse` é fixo, independente da versão, pasta do aplicativo e perfil de laboratório. No macOS, wxSecretStore usa o Acesso às Chaves. O empacotamento não remove nem sobrescreve esse item. O sistema pode solicitar autorização de acesso após trocar o executável de uma versão local assinada ad hoc; isso não significa que a chave foi apagada. Falha ao salvar é exibida e não é anunciada como conexão salva. A versão anterior não persistia a chave: é necessário inseri-la uma vez nesta versão.
+
+Validação: compilação nativa macOS, testes da biblioteca e teste `tests/model-library/secret-store.cpp` usando um valor sintético e serviço separado, com gravação/leitura em processos distintos e remoção confirmada. Nenhuma credencial real entra em testes, arquivos do projeto ou logs.

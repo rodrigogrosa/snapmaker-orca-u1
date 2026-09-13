@@ -211,7 +211,7 @@
   $('#previous').addEventListener('click',()=>{page--;provider==='snapmaker'?render():search(false);});
   $('#next').addEventListener('click',()=>{page++;provider==='snapmaker'?render():search(false);});
   for(const [id,command] of [['open-project','homepage_openproject'],['new-project','homepage_newproject']])$('#'+id).addEventListener('click',()=>{try{native(command);}catch(e){say(e.message);}});
-  function connection(data){connected=data.thingiverse;$('#provider option[value=thingiverse]').textContent=connected?'Thingiverse':'Thingiverse — requer conexão';$('#thingiverse-state').textContent=connected?'Conectado nesta sessão':'Conexão necessária';$('#disconnect').disabled=!connected;}
+  function connection(data){connected=data.thingiverse;$('#provider option[value=thingiverse]').textContent=connected?'Thingiverse':'Thingiverse — requer conexão';$('#thingiverse-state').textContent=connected?'Conectado · chave salva':'Conexão necessária';$('#disconnect').disabled=!connected;}
   $('#connect').addEventListener('click',async()=>{try{connection(await request('u1_configure_thingiverse'));}catch(e){say(e.message);}});
   $('#disconnect').addEventListener('click',async()=>{try{connection(await request('u1_disconnect_thingiverse'));}catch(e){say(e.message);}});
   window.addEventListener('message',event=>{

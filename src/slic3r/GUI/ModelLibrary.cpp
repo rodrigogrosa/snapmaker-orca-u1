@@ -7,12 +7,15 @@
 #include <nlohmann/json.hpp>
 #include <wx/weakref.h>
 #include <wx/textdlg.h>
+#include <wx/secretstore.h>
 #include <boost/filesystem.hpp>
 #include <fstream>
 #include <set>
 
 namespace Slic3r { namespace GUI {
 using LibraryJson = nlohmann::json;
+// Stable across versions, installation paths and laboratory profiles.
+static const wxString library_secret_service = "com.rodrigogrosa.u1lab.thingiverse";
 
 bool WebViewPanel::HandleLibraryMessage(const wxString& message)
 {
@@ -89,19 +92,34 @@ bool WebViewPanel::HandleLibraryMessage(const wxString& message)
         return true;
     }
     if (command == "u1_status") {
+        if (m_library_token.empty()) {
+            auto          store = wxSecretStore::GetDefault();
+            wxString      user;
+            wxSecretValue secret;
+            if (store.IsOk() && store.Load(library_secret_service, user, secret)) {
+                const auto value = secret.GetAsString().ToStdString();
+                if (!value.empty() && value.size() <= 512 && value.find_first_of("\r\n\t ") == std::string::npos)
+                    m_library_token = value;
+            }
+        }
         reply({{"ok", true}, {"data", {{"thingiverse", !m_library_token.empty()}}}});
         return true;
     }
     if (command == "u1_configure_thingiverse") {
-        wxPasswordEntryDialog
-            dialog(this,
-                   wxString::FromUTF8(
-                       "Cole a credencial do seu aplicativo Thingiverse. Ela fica somente na memória até você fechar o U1 Lab."),
-                   wxString::FromUTF8("Conectar Thingiverse"));
+        wxPasswordEntryDialog dialog(this,
+                                     wxString::FromUTF8("Cole a credencial do seu aplicativo Thingiverse. Ela será salva no cofre de "
+                                                        "credenciais do sistema e preservada nas atualizações."),
+                                     wxString::FromUTF8("Conectar Thingiverse"));
         if (dialog.ShowModal() == wxID_OK) {
             auto token = dialog.GetValue().ToStdString();
-            if (token.size() > 512 || token.find_first_of("\r\n\t ") != std::string::npos) {
+            if (token.empty() || token.size() > 512 || token.find_first_of("\r\n\t ") != std::string::npos) {
                 reply({{"ok", false}, {"error", "Credencial inválida."}});
+                return true;
+            }
+            auto store = wxSecretStore::GetDefault();
+            if (!store.IsOk() || !store.Save(library_secret_service, "app-token", wxSecretValue(wxString::FromUTF8(token)))) {
+                reply({{"ok", false},
+                       {"error", "Não foi possível salvar a chave no cofre do sistema. Desbloqueie o cofre e tente novamente."}});
                 return true;
             }
             m_library_token = token;
@@ -110,6 +128,11 @@ bool WebViewPanel::HandleLibraryMessage(const wxString& message)
         return true;
     }
     if (command == "u1_disconnect_thingiverse") {
+        auto store = wxSecretStore::GetDefault();
+        if (!store.IsOk() || !store.Delete(library_secret_service)) {
+            reply({{"ok", false}, {"error", "Não foi possível remover a chave salva. Desbloqueie o cofre do sistema e tente novamente."}});
+            return true;
+        }
         m_library_token.clear();
         reply({{"ok", true}, {"data", {{"thingiverse", false}}}});
         return true;
