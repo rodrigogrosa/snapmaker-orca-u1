@@ -67,3 +67,7 @@ Verificação nativa com serviço real: carregamento de 115 modelos, busca por `
 ### Correção da busca
 
 Plataformas desconectadas mostram “Busca indisponível”, sem apresentar zero resultados como se a consulta tivesse ocorrido. A biblioteca oferece atalhos para a conexão e para o catálogo Snapmaker, preservando o texto pesquisado. Pesquisar durante o carregamento não interrompe mais a paginação; os filtros são preservados ao concluir a carga. A correspondência local ignora acentos e aceita palavras em outra ordem, mas não traduz os termos digitados. O acesso ao Thingiverse continua exigindo a credencial de um aplicativo registrado na plataforma.
+
+### Relevância da busca
+
+Ao trocar de plataforma, a ordenação passa a usar o padrão do catálogo de destino: Thingiverse começa em Relevância, sem herdar Mais recentes do Snapmaker. Nesse modo, títulos contendo todas as palavras da consulta (palavras inteiras, sem diferenciar acentos/maiúsculas) têm prioridade dentro de cada página retornada. A ordem relativa da API é preservada em cada grupo e os demais modos mantêm a ordem da plataforma. Isso não traduz consultas nem altera a contagem ou seleciona resultados de páginas ainda não consultadas. A API documentada do Thingiverse não oferece filtro por cor ou número de cores de impressão.

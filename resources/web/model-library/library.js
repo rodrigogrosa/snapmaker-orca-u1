@@ -84,8 +84,8 @@
     else {input.type=type;input.maxLength=150;}
     wrapper.append(input);parent.append(wrapper);return input;
   }
-  function filters() {
-    const preserved=values();
+  function filters(preserve=true) {
+    const preserved=preserve?values():{};
     const normal=$('#provider-filters');normal.replaceChildren();const advanced=$('.advanced-fields');advanced.replaceChildren();
     $('#advanced').hidden=provider!=='thingiverse';
     if(provider==='snapmaker') {
@@ -100,12 +100,17 @@
       for(const [name,label] of [['posted_after','Publicado após'],['posted_before','Publicado antes']])field(advanced,label,name,null,'date');
       for(const [name,label] of [['license','Código da licença'],['category_id','Identificador da categoria'],['subjects','Disciplinas (identificadores)'],['grades','Séries escolares (identificadores)'],['standards','Normas educacionais (identificadores)'],['liked_by','Curtido pelo usuário (identificador)'],['made_by','Impresso pelo usuário (identificador)']])field(advanced,label,name);
       for(const [name,label] of [['is_edu_approved','Aprovado para educação'],['customizable','Personalizável'],['show_customized','Incluir personalizações'],['has_makes','Com impressões da comunidade'],['is_featured','Em destaque'],['is_derivative','Remix'],['is_fis_challenge_winnereatured','Vencedor de desafio (experimental)']])field(advanced,label,name,[['','Padrão da plataforma'],['1','Sim'],['0','Não']]);
-      $('#scope').textContent='Filtros enviados à API oficial do Thingiverse. Os identificadores seguem os valores da plataforma. O filtro experimental mantém a grafia publicada na documentação e ainda exige validação com uma conta conectada.';
+      $('#scope').textContent='Busca no Thingiverse. Em Relevância, títulos com todas as palavras pesquisadas aparecem primeiro em cada página. Mais recentes prioriza a data e pode trazer correspondências na descrição. Filtro por cor ou quantidade de cores não está disponível neste catálogo.';
     } else $('#scope').textContent='Esta plataforma ainda não está conectada. Consulte Integrações para ver o motivo.';
     for(const input of normal.querySelectorAll('[name]'))if(preserved[input.name] !== undefined && [...input.options].some(o=>o.value===preserved[input.name]))input.value=preserved[input.name];
   }
   function values() {return Object.fromEntries([...$('#search').querySelectorAll('[name]')].map(x=>[x.name,x.value]));}
   const normalize = text => String(text).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
+  function titleMatches(name, query) {
+    const words=normalize(name).match(/[\p{L}\p{N}]+/gu) || [];
+    const terms=normalize(query).match(/[\p{L}\p{N}]+/gu) || [];
+    return terms.length>0 && terms.every(term=>words.includes(term));
+  }
   function render() {
     if(provider==='snapmaker') {
       const f=values(),q=normalize($('#query').value.trim());
@@ -157,6 +162,10 @@
         const response=await request('u1_search',{provider,query:$('#query').value.trim(),page,filters:values()});if(run!==generation)return;
         if(!Array.isArray(response.hits))throw new Error('O formato do catálogo Thingiverse mudou.');
         filtered=response.hits.map(x=>model(x,'thingiverse'));total=Number(response.total || 0);
+        if(values().sort==='relevant') {
+          const query=$('#query').value.trim();
+          filtered.sort((a,b)=>Number(titleMatches(b.name,query))-Number(titleMatches(a.name,query)));
+        }
       }
       say('');render();
     } catch(e){if(run===generation)say(e.message + (catalog.length && provider==='snapmaker'?' Os resultados carregados até agora foram mantidos.':''));}
@@ -193,9 +202,9 @@
   }
   document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{++generation;busy=false;$('#refresh').disabled=false;show(b.dataset.view);if(view==='catalog')search();}));
   $('#back').addEventListener('click',()=>{++generation;busy=false;show(previousView==='favorites'?'favorites':'catalog');if(view==='catalog')search();});
-  $('#provider').addEventListener('change',()=>{++generation;busy=false;provider=$('#provider').value;filtered=[];total=0;page=1;filters();search();});
+  $('#provider').addEventListener('change',()=>{++generation;busy=false;provider=$('#provider').value;filtered=[];total=0;page=1;filters(false);search();});
   $('#resolve-connection').addEventListener('click',()=>{++generation;busy=false;show('connections');});
-  $('#use-snapmaker').addEventListener('click',()=>{++generation;busy=false;provider='snapmaker';$('#provider').value=provider;filters();search();});
+  $('#use-snapmaker').addEventListener('click',()=>{++generation;busy=false;provider='snapmaker';$('#provider').value=provider;filters(false);search();});
   $('#search').addEventListener('submit',e=>{e.preventDefault();search();});
   $('#provider-filters').addEventListener('change',()=>search());
   $('#refresh').addEventListener('click',()=>{catalog=[];catalogComplete=false;search();});
