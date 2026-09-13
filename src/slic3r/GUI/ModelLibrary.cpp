@@ -3,6 +3,8 @@
 #include "GUI_App.hpp"
 #include "MainFrame.hpp"
 #include "Plater.hpp"
+#include "Jobs/Worker.hpp"
+#include <wx/timer.h>
 #include "../Utils/Http.hpp"
 #include "libslic3r/libslic3r.h"
 #include <nlohmann/json.hpp>
@@ -154,11 +156,49 @@ bool WebViewPanel::HandleLibraryMessage(const wxString& message)
                 for (const auto& path : paths)
                     if (boost::filesystem::path(path).extension() == ".3mf")
                         throw std::runtime_error("select");
+            auto plater = wxGetApp().plater();
+            if (plater->new_project(false, true) != wxID_YES) {
+                reply({{"ok", false}, {"error", "Abertura cancelada. Os arquivos baixados foram mantidos."}});
+                return true;
+            }
             wxGetApp().mainframe->select_tab(size_t(MainFrame::tp3DEditor));
-            const auto loaded = wxGetApp().plater()->load_files(paths, LoadStrategy::LoadModel, true);
+            const bool creator_project = paths.size() == 1 && boost::filesystem::path(paths.front()).extension() == ".3mf";
+            const auto loaded          = plater->load_files(paths,
+                                                            creator_project ? LoadStrategy::LoadModel | LoadStrategy::LoadConfig :
+                                                                              LoadStrategy::LoadModel,
+                                                            false);
             if (loaded.empty())
                 throw std::runtime_error("open");
-            reply({{"ok", true}, {"data", {{"imported", true}}}});
+            const auto directory = boost::filesystem::path(data_dir()) / "model-library" / "projects";
+            boost::filesystem::create_directories(directory);
+            // Each import gets its own project, preserving previously edited projects.
+            const auto project = directory / boost::filesystem::unique_path("thingiverse-%%%%-%%%%-%%%%.3mf");
+            if (!creator_project)
+                plater->arrange();
+            auto timer = new wxTimer();
+            timer->Bind(wxEVT_TIMER, [timer, weak, reply, project, ticks = 0](wxTimerEvent&) mutable {
+                if (!weak || ++ticks > 1200) {
+                    timer->Stop();
+                    delete timer;
+                    reply({{"ok", false}, {"error", "Organização não concluída. Os arquivos permanecem na pasta do aplicativo."}});
+                    return;
+                }
+                auto plater = wxGetApp().plater();
+                if (!plater->get_ui_job_worker().is_idle())
+                    return;
+                timer->Stop();
+                try {
+                    if (plater->export_3mf(project, SaveStrategy::Silence) != 0)
+                        throw std::runtime_error("save");
+                    plater->set_project_filename(wxString::FromUTF8(project.string()));
+                    reply({{"ok", true}, {"data", {{"imported", true}, {"project", true}}}});
+                } catch (...) {
+                    reply({{"ok", false}, {"error", "As peças foram abertas, mas não foi possível salvar o projeto 3MF."}});
+                }
+                delete timer;
+            });
+            timer->Start(100);
+
         } catch (...) {
             reply({{"ok", false}, {"error", "Não foi possível abrir a seleção. Se houver um projeto 3MF, selecione somente ele."}});
         }

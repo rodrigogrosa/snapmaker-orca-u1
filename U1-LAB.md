@@ -90,3 +90,9 @@ Os detalhes listam arquivos STL/3MF da API oficial e oferecem **Baixar e abrir n
 Arquivos fora dos formatos suportados não são oferecidos. Cada download tem limite de 100 MiB e 120 segundos. Os testes da biblioteca cobrem seleção de duas peças, download sequencial e abertura somente após concluir os downloads.
 
 Validação real adicional: o Boo (2824758) lista dez peças STL no endpoint v2; o download da peça shaft retornou HTTP 200 com conteúdo STL.
+
+### Projeto completo como ação principal
+
+**Baixar projeto completo** seleciona por padrão um 3MF do criador, quando disponível; caso contrário, baixa todas as peças STL. A seleção manual fica em “Escolher arquivos (opcional)” para variantes do catálogo. A abertura cria um novo projeto com a confirmação nativa de salvamento do trabalho anterior. Para STL, usa a organização automática do Orca e salva o resultado em `model-library/projects/thingiverse-<identificador único>.3mf`. Projetos anteriores não são sobrescritos. Para um 3MF publicado, carrega também sua configuração e preserva o posicionamento.
+
+Esse processo não inventa cores, material, quantidades extras ou parâmetros ausentes no catálogo. Um conjunto STL convertido em 3MF ainda precisa da revisão de orientação e configuração de impressão. Os testes verificam a seleção automática do conjunto completo e o fluxo de abertura.
