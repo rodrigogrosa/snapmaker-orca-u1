@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Package the web library with an existing macOS runtime, without rebuilding C++."""
 import argparse
+import hashlib
+import json
 from pathlib import Path
 import plistlib
 import shlex
@@ -45,7 +47,9 @@ launcher = output / 'Contents/MacOS/U1Lab'
 launcher.write_text('#!/bin/bash\nset -e\nAPP_BIN="$(cd "$(dirname "$0")" && pwd)"\n'
                     'exec "$APP_BIN"/' + shlex.quote(exe) + ' --datadir ' + shlex.quote(str(profile)) + ' "$@"\n')
 launcher.chmod(0o755)
-info.update(CFBundleExecutable='U1Lab', CFBundleIdentifier='com.rodrigogrosa.u1lab', CFBundleName='U1 Lab', CFBundleDisplayName='U1 Lab')
+app_name = 'U1 Lab Native' if args.source_build else 'U1 Lab'
+bundle_id = 'com.rodrigogrosa.u1lab.native' if args.source_build else 'com.rodrigogrosa.u1lab'
+info.update(CFBundleExecutable='U1Lab', CFBundleIdentifier=bundle_id, CFBundleName=app_name, CFBundleDisplayName=app_name)
 info.pop('CFBundleURLTypes', None)
 info.pop('CFBundleDocumentTypes', None)
 with (output / 'Contents/Info.plist').open('wb') as handle:
@@ -55,6 +59,17 @@ with (output / 'Contents/Info.plist').open('wb') as handle:
     + info.get('CFBundleShortVersionString', 'unknown') + '.\n'
     'Source: https://github.com/rodrigogrosa/snapmaker-orca-u1\n'
     + ('Native engine built locally from this fork.\n' if args.source_build else 'The native engine has NOT been rebuilt from this fork.\n'))
+revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=repo, text=True).strip()
+dirty = bool(subprocess.check_output(['git', 'status', '--porcelain'], cwd=repo, text=True).strip())
+manifest = {
+    'repository': 'https://github.com/rodrigogrosa/snapmaker-orca-u1',
+    'revision': revision,
+    'working_tree_modified': dirty,
+    'native_engine_built_from_fork': args.source_build,
+    'runtime_version': info.get('CFBundleShortVersionString'),
+    'source_executable_sha256': hashlib.sha256((source / 'Contents/MacOS' / exe).read_bytes()).hexdigest(),
+}
+(resources / 'U1-LAB.json').write_text(json.dumps(manifest, indent=2) + '\n')
 subprocess.run(['codesign', '--force', '--deep', '--sign', '-', str(output)], check=True)
 subprocess.run(['codesign', '--verify', '--deep', '--strict', str(output)], check=True)
 print(f'Created {output}\nRuntime {info.get("CFBundleShortVersionString")}\nProfile {profile}')
