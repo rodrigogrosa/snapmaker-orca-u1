@@ -241,9 +241,11 @@ bool WebViewPanel::HandleLibraryMessage(const wxString& message)
             .timeout_connect(15)
             .timeout_max(download ? 120 : 30)
             .size_limit(download ? 100 * 1024 * 1024 : 5 * 1024 * 1024);
-        if (provider == "thingiverse" && !download)
+        if (provider == "thingiverse" && url.rfind("https://api.thingiverse.com/", 0) == 0)
             request.header("Authorization", "Bearer " + m_library_token);
-        const std::string extension = download ? boost::filesystem::path(url).extension().string() : "";
+        const std::string extension = download ? (provider == "thingiverse" ? m_library_downloads.at("ext:" + download_key) :
+                                                                              boost::filesystem::path(url).extension().string()) :
+                                                 "";
         request
             .on_complete([reply, weak, provider, command, model_id, download, extension, download_key](std::string body, unsigned status) {
                 if (status != 200) {
@@ -297,13 +299,18 @@ bool WebViewPanel::HandleLibraryMessage(const wxString& message)
                         if (!file.is_object() || !file.contains("id") || !file["id"].is_number_integer() || !file.contains("direct_url") ||
                             !file["direct_url"].is_string())
                             continue;
-                        auto url = file["direct_url"].get<std::string>();
-                        auto ext = boost::filesystem::path(url).extension().string();
-                        if (url.rfind("https://cdn.thingiverse.com/", 0) != 0 || url.find_first_of("?#\r\n") != std::string::npos ||
+                        auto       url     = file["direct_url"].get<std::string>();
+                        auto       ext     = boost::filesystem::path(file.value("name", "")).extension().string();
+                        const auto api_url = "https://api.thingiverse.com/v2/files/" + std::to_string(file["id"].get<long long>()) +
+                                             "/download";
+                        const bool api     = url == api_url || url == api_url + "?increment_download=false";
+                        if ((!api &&
+                             (url.rfind("https://cdn.thingiverse.com/", 0) != 0 || url.find_first_of("?#\r\n") != std::string::npos)) ||
                             (ext != ".stl" && ext != ".3mf" && ext != ".STL"))
                             continue;
                         auto key              = model_id + "-" + std::to_string(file["id"].get<long long>());
-                        urls["remote:" + key] = url;
+                        urls["remote:" + key] = api ? api_url : url;
+                        urls["ext:" + key]    = ext;
                         files.push_back({{"key", key}, {"name", file.value("name", "Arquivo" + ext)}, {"extension", ext}});
                     }
                     wxGetApp().CallAfter([weak, urls] {
