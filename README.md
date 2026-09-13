@@ -1,3 +1,12 @@
+# Snapmaker Orca U1 — desenvolvimento independente
+
+Fork de [Snapmaker/OrcaSlicer](https://github.com/Snapmaker/OrcaSlicer), mantido na conta de Rodrigo Rosa, com foco em uma biblioteca de modelos mais prática para a Snapmaker U1.
+
+O desenvolvimento começa localmente, com alterações versionadas no Git e sincronizadas com este repositório. Consulte [PROJECT.md](PROJECT.md) para escopo, próximos passos e fluxo de trabalho.
+
+Esta versão ainda não possui alterações funcionais nem instaladores próprios. Os downloads e instruções originais abaixo se referem ao projeto da Snapmaker. Este fork é independente e preserva a licença AGPL-3.0 e os créditos originais.
+
+---
 
 <h1> <p "font-size:200px;"> Snapmaker Orca</p> </h1>
 

@@ -1,5 +1,8 @@
 # Repository Guidelines
 
+## Fork-specific working agreement
+Read `PROJECT.md` for this fork's scope and current validation status. Develop locally, make focused commits, and push completed deliveries to `origin` (Rodrigo's fork). Keep `upstream` as the Snapmaker source for reviewed updates. Use feature branches for implementation work. Preserve the original license and attribution. Do not push to upstream, rewrite shared history, or include credentials or private model files. Keep development application data separate from the user's installed slicer profiles. Report build and test results accurately; do not describe unbuilt changes as tested.
+
 ## Project Structure & Module Organization
 Snapmaker_Orca’s C++17 sources live in `src/`, split by feature modules and platform adapters. User assets, icons, and printer presets are in `resources/`; translations stay in `localization/`. Tests sit in `tests/`, grouped by domain (`libslic3r/`, `sla_print/`, etc.) with fixtures under `tests/data/`. CMake helpers reside in `cmake/`, and longer references in `doc/` and `SoftFever_doc/`. Automation scripts belong in `scripts/` and `tools/`. Treat everything in `deps/` and `deps_src/` as vendored snapshots—do not modify without mirroring upstream tags.
 
