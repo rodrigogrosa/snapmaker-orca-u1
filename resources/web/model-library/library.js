@@ -202,11 +202,27 @@
       else if(item.provider==='thingiverse') {
         const files=await request('u1_files',{provider:item.provider,model_id:item.id});
         if(run!==generation || view!=='detail')return;
-        const label=document.createElement('p');label.textContent=files.some(f=>f.extension==='.3mf')?'Projeto 3MF do criador disponível. Será baixado e aberto com sua organização original.':'O criador publicou peças STL. O U1 Lab baixará o conjunto, organizará as peças e salvará um projeto 3MF local. Cores e ajustes precisam ser conferidos antes de fatiar.';info.append(label);
+        const label=document.createElement('p');label.textContent=files.some(f=>f.extension==='.3mf')?'Projeto 3MF do criador disponível. Será baixado e aberto com sua organização original.':'O criador publicou peças STL. O U1 Lab baixará o conjunto, organizará as peças e salvará um projeto 3MF local. Escolha abaixo o filamento de cada peça. STL não contém cores; uma peça de malha única precisa de pintura na área Preparar. As peças serão organizadas separadamente para montagem.';info.append(label);
         const advanced=document.createElement('details'),summary=document.createElement('summary');summary.textContent='Escolher arquivos (opcional)';advanced.append(summary);info.append(advanced);
         const firstProject=files.find(f=>f.extension==='.3mf');
+        const filaments=await request('u1_filaments');
+        if(run!==generation || view!=='detail')return;
+        advanced.open=!firstProject;
+        summary.textContent='Peças e cores dos filamentos';
         const choices=[];
-        for(const file of files){const row=document.createElement('label');row.style.display='block';const check=document.createElement('input');check.type='checkbox';check.checked=firstProject?file.key===firstProject.key:true;row.append(check,document.createTextNode(' '+file.name));advanced.append(row);choices.push({check,file});}
+        for(const file of files){
+          const row=document.createElement('div');row.style.marginBottom='12px';
+          const label=document.createElement('label'),check=document.createElement('input');check.type='checkbox';check.checked=firstProject?file.key===firstProject.key:true;
+          label.append(check,document.createTextNode(' '+file.name));row.append(label);
+          const filament=document.createElement('select');filament.setAttribute('aria-label','Filamento de '+file.name);
+          if(file.extension!=='.3mf'){
+            for(const f of filaments){const option=document.createElement('option');option.value=f.id;option.textContent=`Filamento ${f.id} · ${f.color}`;filament.append(option);}
+            const swatch=document.createElement('span');swatch.style.cssText='display:inline-block;width:22px;height:22px;border:1px solid #888;border-radius:50%;margin:0 8px;vertical-align:middle';
+            const paint=()=>{const color=filaments.find(f=>String(f.id)===filament.value)?.color;swatch.style.backgroundColor=/^#[0-9a-f]{6}$/i.test(color)?color:'transparent';};filament.addEventListener('change',paint);paint();
+            row.append(document.createElement('br'),swatch,filament);
+          }
+          advanced.append(row);choices.push({check,file,filament});
+        }
         const open=button('Baixar projeto completo',async()=>{
           const selected=choices.filter(c=>c.check.checked);
           if(!selected.length){say('Selecione pelo menos um arquivo.');return;}
@@ -214,7 +230,7 @@
           open.disabled=true;
           try{
             for(let i=0;i<selected.length;i++){say(`Baixando arquivo ${i+1} de ${selected.length} para a pasta do U1 Lab…`);await request('u1_download_file',{provider:'thingiverse',file:selected[i].file.key});}
-            say('Abrindo na área Preparar…');await request('u1_open_downloads',{files:selected.map(c=>c.file.key)});say('Projeto 3MF salvo na pasta do U1 Lab e aberto em Preparar. Confira cores, materiais e orientação antes de fatiar.');
+            say('Abrindo na área Preparar…');await request('u1_open_downloads',{files:selected.map(c=>c.file.key),filaments:selected.map(c=>Number(c.filament.value)||1)});say('Projeto 3MF salvo na pasta do U1 Lab e aberto em Preparar. Confira cores, materiais e orientação antes de fatiar.');
           }catch(e){say(e.message);}finally{open.disabled=false;}
         },'primary');
         open.disabled=!files.length;info.append(open);

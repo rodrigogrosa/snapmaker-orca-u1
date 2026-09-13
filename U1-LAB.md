@@ -96,3 +96,9 @@ Validação real adicional: o Boo (2824758) lista dez peças STL no endpoint v2;
 **Baixar projeto completo** seleciona por padrão um 3MF do criador, quando disponível; caso contrário, baixa todas as peças STL. A seleção manual fica em “Escolher arquivos (opcional)” para variantes do catálogo. A abertura cria um novo projeto com a confirmação nativa de salvamento do trabalho anterior. Para STL, usa a organização automática do Orca e salva o resultado em `model-library/projects/thingiverse-<identificador único>.3mf`. Projetos anteriores não são sobrescritos. Para um 3MF publicado, carrega também sua configuração e preserva o posicionamento.
 
 Esse processo não inventa cores, material, quantidades extras ou parâmetros ausentes no catálogo. Um conjunto STL convertido em 3MF ainda precisa da revisão de orientação e configuração de impressão. Os testes verificam a seleção automática do conjunto completo e o fluxo de abertura.
+
+### Peças e filamentos na importação
+
+A importação de STL agora mantém o nome original de cada arquivo, permite selecionar um filamento do perfil por arquivo e remove a seleção parcial antes de organizar todo o conjunto. Cada arquivo é carregado separadamente; os filamentos são gravados no projeto 3MF local. Projetos 3MF fornecidos pelo criador continuam usando a configuração e a disposição originais, sem aplicar as escolhas de STL. Uma malha STL única não possui pintura: esse caso ainda exige pintura na área Preparar. As cores oferecidas correspondem ao perfil, não à detecção dos carretéis físicos.
+
+Validação: teste da biblioteca verifica dois arquivos com filamentos distintos na solicitação nativa; compilação macOS arm64. Não houve impressão física.

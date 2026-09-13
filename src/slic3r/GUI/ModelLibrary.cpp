@@ -3,6 +3,7 @@
 #include "GUI_App.hpp"
 #include "MainFrame.hpp"
 #include "Plater.hpp"
+#include "PresetBundle.hpp"
 #include "Jobs/Worker.hpp"
 #include <wx/timer.h>
 #include "../Utils/Http.hpp"
@@ -140,6 +141,15 @@ bool WebViewPanel::HandleLibraryMessage(const wxString& message)
         reply({{"ok", true}, {"data", {{"thingiverse", false}}}});
         return true;
     }
+    if (command == "u1_filaments") {
+        const auto* colors    = wxGetApp().preset_bundle->project_config.option<ConfigOptionStrings>("filament_colour");
+        LibraryJson filaments = LibraryJson::array();
+        if (colors)
+            for (size_t i = 0; i < colors->values.size(); ++i)
+                filaments.push_back({{"id", i + 1}, {"color", colors->values[i]}});
+        reply({{"ok", true}, {"data", filaments}});
+        return true;
+    }
     if (command == "u1_open_downloads") {
         try {
             const auto ids = input.at("files").get<std::vector<std::string>>();
@@ -156,6 +166,13 @@ bool WebViewPanel::HandleLibraryMessage(const wxString& message)
                 for (const auto& path : paths)
                     if (boost::filesystem::path(path).extension() == ".3mf")
                         throw std::runtime_error("select");
+            const auto  assignments = input.value("filaments", std::vector<int>(ids.size(), 1));
+            const auto* colors      = wxGetApp().preset_bundle->project_config.option<ConfigOptionStrings>("filament_colour");
+            if (assignments.size() != ids.size() || !colors)
+                throw std::runtime_error("filaments");
+            for (int filament : assignments)
+                if (filament < 1 || size_t(filament) > colors->values.size())
+                    throw std::runtime_error("filament");
             auto plater = wxGetApp().plater();
             if (plater->new_project(false, true) != wxID_YES) {
                 reply({{"ok", false}, {"error", "Abertura cancelada. Os arquivos baixados foram mantidos."}});
@@ -163,12 +180,27 @@ bool WebViewPanel::HandleLibraryMessage(const wxString& message)
             }
             wxGetApp().mainframe->select_tab(size_t(MainFrame::tp3DEditor));
             const bool creator_project = paths.size() == 1 && boost::filesystem::path(paths.front()).extension() == ".3mf";
-            const auto loaded          = plater->load_files(paths,
-                                                            creator_project ? LoadStrategy::LoadModel | LoadStrategy::LoadConfig :
-                                                                              LoadStrategy::LoadModel,
-                                                            false);
-            if (loaded.empty())
-                throw std::runtime_error("open");
+            if (creator_project) {
+                // The creator's project owns its material assignments and plate layout.
+                if (plater->load_files(paths, LoadStrategy::LoadModel | LoadStrategy::LoadConfig, false).empty())
+                    throw std::runtime_error("open");
+            } else {
+                for (size_t i = 0; i < paths.size(); ++i) {
+                    const auto loaded = plater->load_files(std::vector<std::string>{paths[i]}, LoadStrategy::LoadModel, false);
+                    if (loaded.empty())
+                        throw std::runtime_error("open");
+                    for (size_t index : loaded) {
+                        auto* object = plater->model().objects.at(index);
+                        object->name = m_library_downloads.at("name:" + ids[i]);
+                        object->config.set_key_value("extruder", new ConfigOptionInt(assignments[i]));
+                        for (auto* volume : object->volumes)
+                            volume->config.set_key_value("extruder", new ConfigOptionInt(assignments[i]));
+                    }
+                }
+                plater->update();
+                // Import selects the last object. An empty selection arranges the entire project.
+                plater->deselect_all();
+            }
             const auto directory = boost::filesystem::path(data_dir()) / "model-library" / "projects";
             boost::filesystem::create_directories(directory);
             // Each import gets its own project, preserving previously edited projects.
@@ -351,6 +383,7 @@ bool WebViewPanel::HandleLibraryMessage(const wxString& message)
                         auto key              = model_id + "-" + std::to_string(file["id"].get<long long>());
                         urls["remote:" + key] = api ? api_url : url;
                         urls["ext:" + key]    = ext;
+                        urls["name:" + key]   = file.value("name", "Arquivo" + ext);
                         files.push_back({{"key", key}, {"name", file.value("name", "Arquivo" + ext)}, {"extension", ext}});
                     }
                     wxGetApp().CallAfter([weak, urls] {
