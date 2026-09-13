@@ -2,6 +2,7 @@
 #include "WebViewDialog.hpp"
 #include "GUI_App.hpp"
 #include "MainFrame.hpp"
+#include "Plater.hpp"
 #include "../Utils/Http.hpp"
 #include "libslic3r/libslic3r.h"
 #include <nlohmann/json.hpp>
@@ -137,11 +138,39 @@ bool WebViewPanel::HandleLibraryMessage(const wxString& message)
         reply({{"ok", true}, {"data", {{"thingiverse", false}}}});
         return true;
     }
+    if (command == "u1_open_downloads") {
+        try {
+            const auto ids = input.at("files").get<std::vector<std::string>>();
+            if (ids.empty() || ids.size() > 100)
+                throw std::runtime_error("files");
+            std::vector<std::string> paths;
+            for (const auto& id : ids) {
+                const auto it = m_library_downloads.find("local:" + id);
+                if (it == m_library_downloads.end() || !boost::filesystem::is_regular_file(it->second))
+                    throw std::runtime_error("file");
+                paths.push_back(it->second);
+            }
+            if (paths.size() > 1)
+                for (const auto& path : paths)
+                    if (boost::filesystem::path(path).extension() == ".3mf")
+                        throw std::runtime_error("select");
+            wxGetApp().mainframe->select_tab(size_t(MainFrame::tp3DEditor));
+            const auto loaded = wxGetApp().plater()->load_files(paths, LoadStrategy::LoadModel, true);
+            if (loaded.empty())
+                throw std::runtime_error("open");
+            reply({{"ok", true}, {"data", {{"imported", true}}}});
+        } catch (...) {
+            reply({{"ok", false}, {"error", "Não foi possível abrir a seleção. Se houver um projeto 3MF, selecione somente ele."}});
+        }
+        return true;
+    }
     try {
         const std::string provider = input.value("provider", "snapmaker");
         std::string       url;
-        bool              download = false;
-        std::string       model_id = input.value("model_id", "");
+        std::string       download_key;
+
+        bool        download = false;
+        std::string model_id = input.value("model_id", "");
         if (!model_id.empty() && (model_id.size() > 20 || model_id.find_first_not_of("0123456789") != std::string::npos))
             throw std::runtime_error("Identificador de modelo inválido.");
         if (provider == "snapmaker") {
@@ -187,8 +216,16 @@ bool WebViewPanel::HandleLibraryMessage(const wxString& message)
                     if (!value.empty())
                         url += "&" + it.key() + "=" + Http::url_encode(value);
                 }
-            } else if (command == "u1_detail" && !model_id.empty()) {
-                url = "https://api.thingiverse.com/things/" + model_id;
+            } else if ((command == "u1_detail" || command == "u1_files") && !model_id.empty()) {
+                url = "https://api.thingiverse.com/things/" + model_id + (command == "u1_files" ? "/files" : "");
+            } else if (command == "u1_download_file") {
+                download_key  = input.value("file", "");
+                const auto it = m_library_downloads.find("remote:" + download_key);
+                if (it == m_library_downloads.end())
+                    throw std::runtime_error("file");
+                url = it->second;
+
+                download = true;
             }
         }
         if (url.empty())
@@ -204,28 +241,34 @@ bool WebViewPanel::HandleLibraryMessage(const wxString& message)
             .timeout_connect(15)
             .timeout_max(download ? 120 : 30)
             .size_limit(download ? 100 * 1024 * 1024 : 5 * 1024 * 1024);
-        if (provider == "thingiverse")
+        if (provider == "thingiverse" && !download)
             request.header("Authorization", "Bearer " + m_library_token);
         const std::string extension = download ? boost::filesystem::path(url).extension().string() : "";
         request
-            .on_complete([reply, weak, provider, command, model_id, download, extension](std::string body, unsigned status) {
+            .on_complete([reply, weak, provider, command, model_id, download, extension, download_key](std::string body, unsigned status) {
                 if (status != 200) {
                     reply({{"ok", false}, {"error", "O serviço não retornou um resultado válido."}});
                     return;
                 }
                 if (download) {
-                    wxGetApp().CallAfter([weak, reply, model_id, extension, body = std::move(body)] {
+                    wxGetApp().CallAfter([weak, reply, model_id, provider, download_key, extension, body = std::move(body)] {
                         if (!weak)
                             return;
                         try {
                             auto directory = boost::filesystem::path(data_dir()) / "model-library";
                             boost::filesystem::create_directories(directory);
-                            auto          path = directory / ("snapmaker-" + model_id + extension);
+                            auto path = directory /
+                                        ((provider == "thingiverse" ? "thingiverse-" + download_key : "snapmaker-" + model_id) + extension);
                             std::ofstream output(path.string(), std::ios::binary | std::ios::trunc);
                             output.write(body.data(), body.size());
                             output.close();
                             if (!output)
                                 throw std::runtime_error("write");
+                            if (provider == "thingiverse") {
+                                weak->m_library_downloads["local:" + download_key] = path.string();
+                                reply({{"ok", true}, {"data", {{"downloaded", true}}}});
+                                return;
+                            }
                             wxGetApp().request_open_project(path.string());
                             reply({{"ok", true}, {"data", {{"imported", true}}}});
                         } catch (...) {
@@ -241,6 +284,34 @@ bool WebViewPanel::HandleLibraryMessage(const wxString& message)
                 }
                 if (provider == "snapmaker" && (!data.is_object() || !data.contains("code") || data["code"] != 200)) {
                     reply({{"ok", false}, {"error", "O catálogo Snapmaker não conseguiu concluir a consulta."}});
+                    return;
+                }
+                if (provider == "thingiverse" && command == "u1_files") {
+                    LibraryJson                        files = LibraryJson::array();
+                    std::map<std::string, std::string> urls;
+                    if (!data.is_array() || data.size() > 100) {
+                        reply({{"ok", false}, {"error", "Lista de arquivos inválida ou muito extensa."}});
+                        return;
+                    }
+                    for (const auto& file : data) {
+                        if (!file.is_object() || !file.contains("id") || !file["id"].is_number_integer() || !file.contains("direct_url") ||
+                            !file["direct_url"].is_string())
+                            continue;
+                        auto url = file["direct_url"].get<std::string>();
+                        auto ext = boost::filesystem::path(url).extension().string();
+                        if (url.rfind("https://cdn.thingiverse.com/", 0) != 0 || url.find_first_of("?#\r\n") != std::string::npos ||
+                            (ext != ".stl" && ext != ".3mf" && ext != ".STL"))
+                            continue;
+                        auto key              = model_id + "-" + std::to_string(file["id"].get<long long>());
+                        urls["remote:" + key] = url;
+                        files.push_back({{"key", key}, {"name", file.value("name", "Arquivo" + ext)}, {"extension", ext}});
+                    }
+                    wxGetApp().CallAfter([weak, urls] {
+                        if (weak)
+                            for (const auto& pair : urls)
+                                weak->m_library_downloads[pair.first] = pair.second;
+                    });
+                    reply({{"ok", true}, {"data", files}});
                     return;
                 }
                 if (provider == "snapmaker" && command == "u1_detail") {

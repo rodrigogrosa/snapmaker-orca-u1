@@ -18,7 +18,7 @@
   function request(command, data = {}) {
     return new Promise((resolve, reject) => {
       const id = String(++serial);
-      const timer = setTimeout(() => { pending.delete(id); reject(new Error('A consulta demorou mais que o esperado. Tente novamente.')); }, command === 'u1_import' ? 130000 : 35000);
+      const timer = setTimeout(() => { pending.delete(id); reject(new Error('A consulta demorou mais que o esperado. Tente novamente.')); }, ['u1_import','u1_download_file','u1_open_downloads'].includes(command) ? 130000 : 35000);
       pending.set(id, {resolve, reject, timer});
       try { native(command, {...data, id}); } catch (e) { clearTimeout(timer); pending.delete(id); reject(e); }
     });
@@ -199,6 +199,25 @@
         importButton.disabled=true;say('Baixando o modelo para abrir no Orca…');
         try{await request('u1_import',{provider:item.provider,model_id:item.id});say('Modelo baixado. Confira o perfil, os materiais e o conteúdo importado na aba Preparar.');}catch(e){say(e.message);}finally{importButton.disabled=false;}
       },'primary');info.append(importButton);}
+      else if(item.provider==='thingiverse') {
+        const files=await request('u1_files',{provider:item.provider,model_id:item.id});
+        if(run!==generation || view!=='detail')return;
+        const label=document.createElement('p');label.textContent='Selecione as peças para baixar. Se houver versões alternativas, escolha apenas as desejadas. Abra um 3MF sozinho.';info.append(label);
+        const choices=[];
+        for(const file of files){const row=document.createElement('label');row.style.display='block';const check=document.createElement('input');check.type='checkbox';row.append(check,document.createTextNode(' '+file.name));info.append(row);choices.push({check,file});}
+        const open=button('Baixar e abrir no projeto',async()=>{
+          const selected=choices.filter(c=>c.check.checked);
+          if(!selected.length){say('Selecione pelo menos um arquivo.');return;}
+          if(selected.length>1 && selected.some(c=>c.file.extension==='.3mf')){say('Selecione o projeto 3MF sozinho ou apenas as peças STL.');return;}
+          open.disabled=true;
+          try{
+            for(let i=0;i<selected.length;i++){say(`Baixando arquivo ${i+1} de ${selected.length} para a pasta do U1 Lab…`);await request('u1_download_file',{provider:'thingiverse',file:selected[i].file.key});}
+            say('Abrindo na área Preparar…');await request('u1_open_downloads',{files:selected.map(c=>c.file.key)});say('Arquivos abertos. Confira materiais, cores e escala na área Preparar; depois fatie e revise a prévia.');
+          }catch(e){say(e.message);}finally{open.disabled=false;}
+        },'primary');
+        open.disabled=!files.length;info.append(open);
+        if(!files.length)label.textContent='Este modelo não oferece arquivos STL ou 3MF para importação direta.';
+      }
       else {const note=document.createElement('p');note.className='muted';note.textContent='A importação direta deste modelo ainda não está disponível.';info.append(note);}
       info.append(label,description);grid.append(img,info);$('#detail-body').append(grid);say('');
     }catch(e){if(run===generation)say(e.message);}

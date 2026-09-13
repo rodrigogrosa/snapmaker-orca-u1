@@ -82,3 +82,9 @@ Validação: compilação nativa macOS, testes da biblioteca e teste `tests/mode
 ### Catálogo inicial e páginas de 100 modelos
 
 O Thingiverse abre com `sort=newest` quando não há texto, usando o endpoint `/search/` documentado para navegação geral. Popularidade continua disponível; ela não representa uma contagem verificada de downloads. O padrão de paginação é 100 tanto para navegação quanto para pesquisa, com opções de 50 e 20. Uma nova consulta textual começa por relevância e volta à primeira página. O último lote pode conter menos de 100 resultados. Testes da interface verificam carga inicial de 100, segunda página parcial e pesquisa com o mesmo tamanho.
+
+### Download do Thingiverse e abertura no Orca
+
+Os detalhes listam arquivos STL/3MF da API oficial e oferecem **Baixar e abrir no projeto**. O usuário seleciona as peças desejadas, evitando misturar versões alternativas ou um projeto 3MF com outras peças. O download usa somente URLs HTTPS do CDN Thingiverse recebidas pela API; a chave não é enviada ao CDN. Os arquivos ficam em `model-library` dentro do perfil exclusivo do U1 Lab, com nomes formados pelos identificadores do modelo e arquivo. Após baixar a seleção, o Orca abre os modelos na área Preparar, preservando a configuração atual da impressora. Para vários STL, o diálogo do Orca permite definir como agrupá-los. Não inicia impressão física.
+
+Arquivos fora dos formatos suportados não são oferecidos. Cada download tem limite de 100 MiB e 120 segundos. Os testes da biblioteca cobrem seleção de duas peças, download sequencial e abertura somente após concluir os downloads.
