@@ -8,7 +8,7 @@
   const pending = new Map();
   let serial = 0, generation = 0, provider = 'snapmaker', view = 'catalog', page = 1;
   let catalog = [], filtered = [], favorites = [], connected = false, total = 0, previousView = 'catalog';
-  let storageOK = false, busy = false;
+  let storageOK = false, busy = false, catalogComplete = false, catalogRun = null;
   const format = n => Number(n).toLocaleString('pt-BR');
   function native(command, data = {}) {
     if (!window.wx?.postMessage) throw new Error('Abra esta biblioteca pelo U1 Lab para conectar os catálogos.');
@@ -85,6 +85,7 @@
     wrapper.append(input);parent.append(wrapper);return input;
   }
   function filters() {
+    const preserved=values();
     const normal=$('#provider-filters');normal.replaceChildren();const advanced=$('.advanced-fields');advanced.replaceChildren();
     $('#advanced').hidden=provider!=='thingiverse';
     if(provider==='snapmaker') {
@@ -101,30 +102,46 @@
       for(const [name,label] of [['is_edu_approved','Aprovado para educação'],['customizable','Personalizável'],['show_customized','Incluir personalizações'],['has_makes','Com impressões da comunidade'],['is_featured','Em destaque'],['is_derivative','Remix'],['is_fis_challenge_winnereatured','Vencedor de desafio (experimental)']])field(advanced,label,name,[['','Padrão da plataforma'],['1','Sim'],['0','Não']]);
       $('#scope').textContent='Filtros enviados à API oficial do Thingiverse. Os identificadores seguem os valores da plataforma. O filtro experimental mantém a grafia publicada na documentação e ainda exige validação com uma conta conectada.';
     } else $('#scope').textContent='Esta plataforma ainda não está conectada. Consulte Integrações para ver o motivo.';
+    for(const input of normal.querySelectorAll('[name]'))if(preserved[input.name] !== undefined && [...input.options].some(o=>o.value===preserved[input.name]))input.value=preserved[input.name];
   }
   function values() {return Object.fromEntries([...$('#search').querySelectorAll('[name]')].map(x=>[x.name,x.value]));}
+  const normalize = text => String(text).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
   function render() {
     if(provider==='snapmaker') {
-      const f=values(),q=$('#query').value.trim().toLocaleLowerCase('pt-BR');
-      filtered=catalog.filter(m=>(!q || `${m.name} ${m.creator}`.toLocaleLowerCase('pt-BR').includes(q)) && (!f.author || m.creator===f.author) && (!f.file || m.onlyGcode===(f.file==='gcode')));
+      const f=values(),q=normalize($('#query').value.trim());
+      filtered=catalog.filter(m=>(!q || q.split(/\s+/).every(word=>normalize(`${m.name} ${m.creator}`).includes(word))) && (!f.author || m.creator===f.author) && (!f.file || m.onlyGcode===(f.file==='gcode')));
       filtered.sort((a,b)=>f.sort==='name'?a.name.localeCompare(b.name,'pt-BR'):f.sort==='oldest'?a.date-b.date:b.date-a.date);
       total=filtered.length;
     }
     const size=provider==='snapmaker'?24:Number(values().per_page || 20);
     const pages=Math.max(1,Math.ceil(total/size));page=Math.min(page,pages);
     cards($('#results'),provider==='snapmaker'?filtered.slice((page-1)*size,page*size):filtered);
-    $('#results-title').textContent=`${format(total)} ${total===1?'modelo':'modelos'}`;
+    const unavailable=provider!=='snapmaker' && (provider!=='thingiverse' || !connected);
+    $('#connection-help').hidden=!unavailable;
+    $('.pagination').hidden=unavailable;
+    $('#refresh').hidden=unavailable;
+    $('#results-title').textContent=unavailable?'Busca indisponível':`${format(total)} ${total===1?'modelo':'modelos'}`;
+    if(unavailable) {
+      $('#results').replaceChildren();
+      $('#connection-reason').textContent=provider==='thingiverse'
+        ? 'O Thingiverse ainda não está conectado. Sua pesquisa não foi enviada. Conecte seu aplicativo Thingiverse para buscar neste catálogo.'
+        : 'Esta integração ainda não está disponível. Sua pesquisa não foi enviada. O catálogo Snapmaker está disponível nesta biblioteca.';
+    }
     $('#page-label').textContent=`Página ${format(page)} de ${format(pages)}`;
     $('#previous').disabled=page<=1 || busy;$('#next').disabled=page>=pages || busy;
   }
   async function search(reset=true) {
-    const run=++generation;if(reset)page=1;
-    if(provider==='snapmaker' && catalog.length){render();return;}
+    if(reset)page=1;
+    // Filtering must not cancel the next page already being fetched.
+    if(provider==='snapmaker' && catalogRun===generation && busy){render();return;}
+    const run=++generation;busy=false;$('#refresh').disabled=false;
+    if(provider==='snapmaker' && catalogComplete){say('');render();return;}
     if(['printables','makerworld'].includes(provider)){filtered=[];total=0;render();say('Integração ainda indisponível. Nenhuma busca foi enviada. Veja a seção Integrações.');return;}
     if(provider==='thingiverse' && !connected){filtered=[];total=0;render();say('Conecte seu aplicativo Thingiverse em Integrações para pesquisar aqui.');return;}
     busy=true;$('#refresh').disabled=true;say('Consultando o catálogo…');
     try {
       if(provider==='snapmaker') {
+        catalogRun=run;catalogComplete=false;
         const loaded=[];let p=1;let count=Infinity;
         while(loaded.length<count && p<=100) {
           const response=await request('u1_search',{provider,page:p});if(run!==generation)return;
@@ -135,7 +152,7 @@
           count=Number(response.page?.total ?? loaded.length);catalog=[...loaded];render();
           say(`Carregando ${format(loaded.length)} de ${format(count)} modelos…`);p++;
         }
-        filters();
+        catalogComplete=true;filters();
       } else {
         const response=await request('u1_search',{provider,query:$('#query').value.trim(),page,filters:values()});if(run!==generation)return;
         if(!Array.isArray(response.hits))throw new Error('O formato do catálogo Thingiverse mudou.');
@@ -174,16 +191,18 @@
       info.append(label,description);grid.append(img,info);$('#detail-body').append(grid);say('');
     }catch(e){if(run===generation)say(e.message);}
   }
-  document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{++generation;busy=false;$('#refresh').disabled=false;show(b.dataset.view);}));
-  $('#back').addEventListener('click',()=>{++generation;show(previousView==='favorites'?'favorites':'catalog');});
-  $('#provider').addEventListener('change',()=>{provider=$('#provider').value;filtered=[];total=0;page=1;filters();search();});
+  document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{++generation;busy=false;$('#refresh').disabled=false;show(b.dataset.view);if(view==='catalog')search();}));
+  $('#back').addEventListener('click',()=>{++generation;busy=false;show(previousView==='favorites'?'favorites':'catalog');if(view==='catalog')search();});
+  $('#provider').addEventListener('change',()=>{++generation;busy=false;provider=$('#provider').value;filtered=[];total=0;page=1;filters();search();});
+  $('#resolve-connection').addEventListener('click',()=>{++generation;busy=false;show('connections');});
+  $('#use-snapmaker').addEventListener('click',()=>{++generation;busy=false;provider='snapmaker';$('#provider').value=provider;filters();search();});
   $('#search').addEventListener('submit',e=>{e.preventDefault();search();});
   $('#provider-filters').addEventListener('change',()=>search());
-  $('#refresh').addEventListener('click',()=>{catalog=[];search();});
+  $('#refresh').addEventListener('click',()=>{catalog=[];catalogComplete=false;search();});
   $('#previous').addEventListener('click',()=>{page--;provider==='snapmaker'?render():search(false);});
   $('#next').addEventListener('click',()=>{page++;provider==='snapmaker'?render():search(false);});
   for(const [id,command] of [['open-project','homepage_openproject'],['new-project','homepage_newproject']])$('#'+id).addEventListener('click',()=>{try{native(command);}catch(e){say(e.message);}});
-  function connection(data){connected=data.thingiverse;$('#thingiverse-state').textContent=connected?'Conectado nesta sessão':'Conexão necessária';$('#disconnect').disabled=!connected;}
+  function connection(data){connected=data.thingiverse;$('#provider option[value=thingiverse]').textContent=connected?'Thingiverse':'Thingiverse — requer conexão';$('#thingiverse-state').textContent=connected?'Conectado nesta sessão':'Conexão necessária';$('#disconnect').disabled=!connected;}
   $('#connect').addEventListener('click',async()=>{try{connection(await request('u1_configure_thingiverse'));}catch(e){say(e.message);}});
   $('#disconnect').addEventListener('click',async()=>{try{connection(await request('u1_disconnect_thingiverse'));}catch(e){say(e.message);}});
   window.addEventListener('message',event=>{

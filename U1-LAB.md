@@ -63,3 +63,7 @@ Verificação nativa com serviço real: carregamento de 115 modelos, busca por `
 - `src/slic3r/GUI/ModelLibrary.cpp`: requisições com destinos e campos permitidos, credencial temporária, favoritos e abertura do arquivo baixado.
 - `WebViewPanel::HandleLibraryMessage`: aceita os novos comandos somente na página local da biblioteca.
 - Conteúdo remoto entra como texto ou imagem. HTML remoto não é inserido na interface e não recebe acesso à ponte nativa. Credenciais de conta do Orca não são encaminhadas aos catálogos.
+
+### Correção da busca
+
+Plataformas desconectadas mostram “Busca indisponível”, sem apresentar zero resultados como se a consulta tivesse ocorrido. A biblioteca oferece atalhos para a conexão e para o catálogo Snapmaker, preservando o texto pesquisado. Pesquisar durante o carregamento não interrompe mais a paginação; os filtros são preservados ao concluir a carga. A correspondência local ignora acentos e aceita palavras em outra ordem, mas não traduz os termos digitados. O acesso ao Thingiverse continua exigindo a credencial de um aplicativo registrado na plataforma.
