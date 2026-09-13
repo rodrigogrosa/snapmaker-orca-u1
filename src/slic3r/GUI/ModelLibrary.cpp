@@ -1,3 +1,6 @@
+#ifdef __APPLE__
+#include <Security/Security.h>
+#endif
 // U1 Lab: fixed-provider requests from the trusted local home page only.
 #include "WebViewDialog.hpp"
 #include "GUI_App.hpp"
@@ -12,6 +15,9 @@
 #include <wx/weakref.h>
 #include <wx/textdlg.h>
 #include <wx/secretstore.h>
+#ifdef __APPLE__
+#include "LibraryCredentialFile.hpp"
+#endif
 #include <boost/filesystem.hpp>
 #include <fstream>
 #include <set>
@@ -20,6 +26,10 @@ namespace Slic3r { namespace GUI {
 using LibraryJson = nlohmann::json;
 // Stable across versions, installation paths and laboratory profiles.
 static const wxString library_secret_service = "com.rodrigogrosa.u1lab.thingiverse";
+#ifdef __APPLE__
+static LibraryCredentialFile library_credentials()
+{ return LibraryCredentialFile(wxGetHomeDir().ToStdString() + "/Library/Application Support/U1 Lab Credentials"); }
+#endif
 
 bool WebViewPanel::HandleLibraryMessage(const wxString& message)
 {
@@ -96,23 +106,62 @@ bool WebViewPanel::HandleLibraryMessage(const wxString& message)
         return true;
     }
     if (command == "u1_status") {
-        if (m_library_token.empty()) {
-            auto          store = wxSecretStore::GetDefault();
-            wxString      user;
-            wxSecretValue secret;
-            if (store.IsOk() && store.Load(library_secret_service, user, secret)) {
-                const auto value = secret.GetAsString().ToStdString();
-                if (!value.empty() && value.size() <= 512 && value.find_first_of("\r\n\t ") == std::string::npos)
-                    m_library_token = value;
+        try {
+#ifdef __APPLE__
+            auto        storage = library_credentials();
+            std::string saved;
+            if (storage.load(saved)) {
+                m_library_token = saved;
+            } else {
+                // Try the legacy item without allowing any system password dialog.
+                Boolean           previous = true;
+                UInt32            length   = 0;
+                void*             bytes    = nullptr;
+                OSStatus          status   = errSecInteractionNotAllowed;
+                const std::string service  = library_secret_service.ToStdString();
+                if (SecKeychainGetUserInteractionAllowed(&previous) == errSecSuccess &&
+                    SecKeychainSetUserInteractionAllowed(false) == errSecSuccess) {
+                    status = SecKeychainFindGenericPassword(nullptr, service.size(), service.data(), 0, nullptr, &length, &bytes, nullptr);
+                    SecKeychainSetUserInteractionAllowed(previous);
+                }
+                if (status == errSecSuccess) {
+                    saved.assign(static_cast<char*>(bytes), length);
+                    SecKeychainItemFreeContent(nullptr, bytes);
+                    if (!saved.empty() && LibraryCredentialFile::valid(saved)) {
+                        storage.save(saved);
+                        m_library_token = saved;
+                    }
+                } else if (status != errSecItemNotFound) {
+                    reply({{"ok", true}, {"data", {{"thingiverse", false}, {"recovery_required", true}}}});
+                    return true;
+                }
             }
+#else
+            if (m_library_token.empty()) {
+                auto          store = wxSecretStore::GetDefault();
+                wxString      user;
+                wxSecretValue secret;
+                if (store.IsOk() && store.Load(library_secret_service, user, secret)) {
+                    const auto value = secret.GetAsString().ToStdString();
+                    if (!value.empty() && value.size() <= 512 && value.find_first_of("\r\n\t ") == std::string::npos)
+                        m_library_token = value;
+                }
+            }
+#endif
+        } catch (...) {
+            reply({{"ok", false},
+                   {"error",
+                    "Não foi possível ler a configuração salva. A chave não foi apagada. Verifique o acesso à pasta privada do U1 Lab."}});
+            return true;
         }
         reply({{"ok", true}, {"data", {{"thingiverse", !m_library_token.empty()}}}});
         return true;
     }
     if (command == "u1_configure_thingiverse") {
         wxPasswordEntryDialog dialog(this,
-                                     wxString::FromUTF8("Cole a credencial do seu aplicativo Thingiverse. Ela será salva no cofre de "
-                                                        "credenciais do sistema e preservada nas atualizações."),
+                                     wxString::FromUTF8(
+                                         "Cole a credencial do seu aplicativo Thingiverse. Ela será salva fora do aplicativo, "
+                                         "na configuração privada do seu usuário, e preservada nas atualizações."),
                                      wxString::FromUTF8("Conectar Thingiverse"));
         if (dialog.ShowModal() == wxID_OK) {
             auto token = dialog.GetValue().ToStdString();
@@ -120,23 +169,41 @@ bool WebViewPanel::HandleLibraryMessage(const wxString& message)
                 reply({{"ok", false}, {"error", "Credencial inválida."}});
                 return true;
             }
+#ifdef __APPLE__
+            try {
+                library_credentials().save(token);
+            } catch (...) {
+                reply({{"ok", false}, {"error", "Não foi possível salvar a chave. A configuração anterior foi preservada."}});
+                return true;
+            }
+#else
             auto store = wxSecretStore::GetDefault();
             if (!store.IsOk() || !store.Save(library_secret_service, "app-token", wxSecretValue(wxString::FromUTF8(token)))) {
                 reply({{"ok", false},
                        {"error", "Não foi possível salvar a chave no cofre do sistema. Desbloqueie o cofre e tente novamente."}});
                 return true;
             }
+#endif
             m_library_token = token;
         }
         reply({{"ok", true}, {"data", {{"thingiverse", !m_library_token.empty()}}}});
         return true;
     }
     if (command == "u1_disconnect_thingiverse") {
+#ifdef __APPLE__
+        try {
+            library_credentials().save("");
+        } catch (...) {
+            reply({{"ok", false}, {"error", "Não foi possível salvar a desconexão. A configuração anterior foi preservada."}});
+            return true;
+        }
+#else
         auto store = wxSecretStore::GetDefault();
         if (!store.IsOk() || !store.Delete(library_secret_service)) {
             reply({{"ok", false}, {"error", "Não foi possível remover a chave salva. Desbloqueie o cofre do sistema e tente novamente."}});
             return true;
         }
+#endif
         m_library_token.clear();
         reply({{"ok", true}, {"data", {{"thingiverse", false}}}});
         return true;

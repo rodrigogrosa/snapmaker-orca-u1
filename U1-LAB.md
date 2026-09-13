@@ -108,3 +108,11 @@ Validação: teste da biblioteca verifica dois arquivos com filamentos distintos
 A lista de arquivos usa as miniaturas disponibilizadas pelo Thingiverse, com nomes legíveis em português para componentes conhecidos e nomes de cores em vez de códigos hexadecimais. STL começa sem filamento selecionado, exigindo uma escolha explícita para evitar que tudo seja importado silenciosamente com o primeiro filamento. O Boo 2824758 recebe orientações pontuais baseadas na foto fornecida e na descrição do criador; são sugestões, não cores extraídas do STL nem um serviço de reconhecimento automático. Partes ambíguas são identificadas como tal. O perfil precisa conter os filamentos desejados.
 
 Testes cobrem miniatura carregada sem Referer e bloqueio do download enquanto houver peças selecionadas sem filamento; os nomes desconhecidos são preservados. Sem impressão física.
+
+### Persistência sem solicitação de senha no macOS
+
+As compilações locais usam assinatura ad-hoc variável; por isso o acesso anterior via Chaves podia pedir nova autorização e uma recusa aparecia como desconexão. No Mac, o conector agora grava em `~/Library/Application Support/U1 Lab Credentials/thingiverse.token`, independente do pacote, versão e perfil do laboratório. É um arquivo local sem criptografia própria, protegido pelas permissões da conta (pasta 0700 e arquivo 0600), nunca incluído no Git, no JavaScript ou nos logs. Trocas são atômicas, com sincronização antes da substituição. Erros de leitura não apagam o conteúdo.
+
+A migração do Chaves tenta somente acesso não interativo; se o sistema negar, a interface pede reconexão uma vez e não solicita a senha do Mac. Desconectar grava um marcador vazio para impedir reimportação da chave legada. O item legado não é alterado. Demais sistemas mantêm wxSecretStore.
+
+Validação: `python3 tests/model-library/credential-file.py` usa dados sintéticos e dois executáveis/processos independentes; cobre reinício/versão, permissões, desconexão, entrada inválida, arquivo corrompido e rejeição de link simbólico. Testes da biblioteca web passaram. Neste Mac, a migração não interativa foi negada pelo Chaves; a credencial real precisa ser informada novamente no aplicativo antes de verificar a busca autenticada.
