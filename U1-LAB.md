@@ -1,78 +1,65 @@
-# U1 Lab: primeira biblioteca de modelos
+# U1 Lab — biblioteca integrada e português brasileiro
 
-## O que testar
+A página inicial agora é a biblioteca. Não há painel flutuante nem abertura de sites externos neste fluxo. O motor e os perfis de impressão continuam sendo os da base Snapmaker Orca; o pacote de desenvolvimento usa dados separados do aplicativo oficial.
 
-Na página inicial do aplicativo, clique em **Explorar modelos**, no canto inferior direito.
+## Como testar
 
-1. Digite um termo ou escolha uma sugestão e clique na comunidade desejada.
-2. O site abre no navegador padrão. A biblioteca não copia catálogos nem baixa arquivos automaticamente.
-3. Use **Salvar um link** para guardar nome e endereço HTTPS de um modelo. Os links podem ser abertos e removidos.
-4. Baixe o STL/3MF pelo site e volte ao Orca para importar, configurar a U1 e conferir a prévia.
+1. Abra **U1 Lab Native.app**. A região do perfil de laboratório é **Brasil** e o idioma é **Português (Brasil)**.
+2. Na biblioteca, busque por nome de modelo ou criador. O catálogo Snapmaker é carregado em páginas e permite filtrar por criador, tipo de arquivo e ordenação. A busca é local sobre os modelos carregados, não uma API de busca remota da Snapmaker.
+3. Clique no coração para salvar um modelo. Os favoritos ficam em `model-library/favorites.json` dentro do perfil, independentes da porta local.
+4. Abra um modelo para ver sua descrição e licença. **Importar no projeto** baixa STL/3MF disponível e aciona a abertura normal do Orca. O limite de download é 100 MiB. O aplicativo pode pedir que você revise configurações trazidas pelo projeto.
+5. Para Thingiverse, abra **Integrações → Conectar Thingiverse** e informe a credencial do seu próprio aplicativo registrado. A credencial permanece somente na memória até encerrar a sessão. Não coloque credenciais no Git ou em mensagens.
 
-Os favoritos são links, não arquivos 3D. Eles ficam no armazenamento local da visualização web. Na versão inicial, ficam associados à origem local (incluindo a porta); se a porta mudar por haver outras instâncias abertas, a lista pode aparecer diferente. A próxima evolução deve migrar esses dados para um arquivo da biblioteca no perfil do aplicativo.
+## Disponibilidade dos serviços
 
-## Dois caminhos de teste
+| Serviço | Estado | Filtros e limites |
+| --- | --- | --- |
+| Snapmaker | Catálogo, detalhes e importação testados com serviço real | 115 modelos na verificação; consulta local por nome/criador, criador, somente G-code ou modelo, ordem por nome/data. A API observada fornece paginação, sem outros filtros remotos verificados. |
+| Thingiverse | Conector implementado; teste autenticado pendente de credencial | Busca, página, tamanho da página e os 18 campos opcionais documentados: ordenação, datas, educação, disciplinas, séries, normas, licença, personalização, impressões, destaque, desafio, usuários e categoria. Filtro de desafio experimental: a documentação publica um nome aparentemente incorreto. Detalhes internos; importação ainda não implementada. |
+| Printables | Acesso pendente | A consulta automatizada foi bloqueada. Não contorna bloqueios nem apresenta resultados fictícios. |
+| MakerWorld | Acesso pendente | API pública utilizável por este aplicativo ainda não verificada. |
 
-### Prévia de interface com o aplicativo já instalado
+Referências: [API oficial do Thingiverse](https://www.thingiverse.com/developers/swagger), [campos da busca](https://www.thingiverse.com/swagger/docs/resources/search.yaml), [termos da API](https://www.thingiverse.com/legal/api). As rotas Snapmaker foram verificadas no aplicativo de origem e no serviço real. Não são apresentadas como uma API pública com garantia de estabilidade.
 
-O pacote de prévia copia o aplicativo indicado, acrescenta apenas os recursos da biblioteca e cria uma identidade de teste. O programa instalado é lido, não alterado. Este caminho **não compila o motor C++ do fork**.
+## Tradução e região
+
+- Catálogo nativo pt_BR: 4.790 mensagens preenchidas, incluindo 340 ausentes no catálogo antigo. A extração pela lista de fontes atual resulta em 4.699 mensagens sem traduções pendentes.
+- Parte Flutter: 1.645 valores em português brasileiro, incluindo chaves usadas pelo programa que faltavam no catálogo original. Todos os nomes de campos e marcadores de substituição são verificados.
+- O programa Flutter distribuído pela origem registra somente inglês e chinês. O carregador `locale-pt-br.js` direciona o recurso inglês para pt-BR somente quando a localidade solicitada é portuguesa. Outros idiomas preservam o comportamento original.
+- O servidor local mantém o conjunto de recursos web deste fork junto com sua tradução; o cache de uma versão upstream não substitui esse conjunto. Atualizações dessa interface devem ser feitas pelo Git e pela recompilação/empacotamento.
+- Brasil usa código BR e o serviço internacional existente, sem criar um servidor brasileiro fictício. Autenticação em nuvem na região Brasil ainda requer validação com uma conta.
+- Títulos, descrições e licenças dos criadores são apresentados no idioma original. Imagens com texto, textos fornecidos pelo firmware e diálogos do sistema operacional não são cobertos por uma contagem do catálogo. Não se declara revisão visual de todas as telas ou tradução universal de conteúdo remoto.
+
+## Compilar e empacotar
 
 ```sh
-python3 scripts/package_u1_lab.py \
-  --source '/Applications/Snapmaker Orca.app' \
-  --output '/caminho/novo/U1 Lab.app' \
-  --profile '/caminho/novo/perfil-u1-lab'
+./scripts/build_u1_macos.sh --all
+python3 scripts/package_u1_lab.py --source 'build/arm64/Snapmaker_Orca/Snapmaker Orca.app' --output '/caminho/novo/U1 Lab Native.app' --profile '/caminho/perfil-laboratorio' --source-build
 ```
 
-O destino deve ser novo. Perfis existentes só são aceitos quando possuem o marcador `.u1-lab-profile` criado pelo próprio script. O pacote usa `--datadir`, tem um identificador próprio e não registra as associações de arquivos e URLs do aplicativo oficial. Não contém credenciais ou perfis copiados do usuário. A assinatura é local, não uma distribuição notarizada pela Apple.
+Feche a cópia de laboratório antes de empacotar. O destino deve ser novo, e um perfil existente precisa conter o marcador `.u1-lab-profile`. O empacotador configura apenas esse perfil para pt_BR/Brasil, guardando uma cópia da configuração anterior se necessário. O pacote contém a revisão Git e a procedência do executável em `U1-LAB.json`. Requer gettext (`msgfmt`).
 
-### Compilação local completa
+A compilação local foi feita para macOS arm64 com CMake 3.31.10, Ninja e Command Line Tools. O aplicativo informa versão 2.4.0, pois usa a branch de desenvolvimento da origem. A assinatura é local, sem notarização. O aviso de ligação com zstd de um macOS mais recente permanece; portabilidade para outros Macs não foi validada.
 
-Com as Command Line Tools do macOS instaladas:
+## Verificação
 
-```sh
-brew install ninja automake autoconf libtool texinfo gettext
-scripts/build_u1_macos.sh --deps
-scripts/build_u1_macos.sh --app
-```
-
-O helper isola o CMake 3.31.10 em `build/u1-tools`, usa Ninja e a arquitetura do Mac. Para reduzir carga, defina `CMAKE_BUILD_PARALLEL_LEVEL=2`. Os resultados ficam em `build/` e as dependências em `deps/build/`, fora do Git. Consulte a saída final do script de origem para localizar o pacote gerado. Use `--source-build` ao empacotar um bundle efetivamente compilado deste fork.
-
-## Verificação da biblioteca
-
-Sirva os recursos localmente:
+Com os recursos servidos localmente e Node, Playwright, Chrome e gettext disponíveis:
 
 ```sh
 python3 -m http.server 18791 --bind 127.0.0.1 --directory resources
-```
-
-Com Node, Playwright e Google Chrome disponíveis:
-
-```sh
 node tests/web/model-library.cjs
+node tests/web/locale-loader.cjs
+python3 tests/web/localization.py
+U1_HTTP_PORT=13620 python3 tests/web/http-framing.py
 ```
 
-O teste usa um contexto temporário do navegador, sem a sessão pessoal. Cobre busca com caracteres especiais, mensagens para a ponte nativa, links salvos e persistência, remoção, duplicados, validação HTTPS, texto sem execução de HTML, Escape, layout estreito, armazenamento corrompido e abertura externa no navegador. A URL pode ser alterada com `U1_TEST_URL`.
+Use a porta efetiva exibida pelo aplicativo no último comando. Os testes da biblioteca usam dados sintéticos identificados como fixtures; cobrem paginação, filtros, persistência, conteúdo não executável, roteamento de importação/arquivos recentes, os filtros Thingiverse e ausência de janelas externas. O teste de idioma verifica as chaves, marcadores, catálogo nativo atualizado e o carregador de idioma por fetch/XHR.
 
-Validação manual já realizada no pacote com runtime 2.3.6: biblioteca aberta no aplicativo, pesquisa da U1 enviada ao Printables no navegador e favorito preservado após encerrar/reabrir a cópia. Nenhum comando foi enviado à impressora. Isso não equivale a validar uma impressão física ou o novo motor compilado.
+Verificação nativa com serviço real: carregamento de 115 modelos, busca por `trophy`, favorito persistente, detalhes internos e download/abertura do arquivo Snapmaker 119 (3MF, aproximadamente 2,7 MiB). Nenhuma impressão ou comando de movimento foi enviado à impressora. A leitura de cabeçalhos HTTP fragmentados mantém a correção CRLF previamente validada.
 
-## Organização da implementação
+## Implementação
 
-- `resources/web/model-library/`: HTML de prévia, CSS e JavaScript compartilhados com a integração.
-- `resources/web/flutter_web/index.html`: carregamento da biblioteca apenas na página inicial (`path=0`).
-- `scripts/package_u1_lab.py`: criação da cópia de teste com perfil separado.
-- `scripts/build_u1_macos.sh`: compilação nativa local.
-- `tests/web/model-library.cjs`: verificação dos fluxos da biblioteca.
-
-O componente usa Shadow DOM para separar seus estilos da interface Flutter. Os resultados de busca são abertos no navegador por meio do comando existente `common_openurl`. O código não altera o fatiamento nem o envio à impressora.
-
-## Resultado da compilação completa — 2026-09-13
-
-- Dependências e aplicativo compilados localmente para arm64, com Command Line Tools, Ninja e CMake 3.31.10. O runtime informa versão 2.4.0; a base é a branch de desenvolvimento upstream, não uma release estável própria.
-- `U1 Lab Native.app` usa uma identidade distinta da prévia 2.3.6 e um perfil de teste separado.
-- Corrigido um travamento do servidor HTTP local: a leitura esperava apenas CR, podendo deixar LF isolado quando os pacotes se dividiam. A linha que encerra os cabeçalhos deixava de ser reconhecida e o WebView permanecia em branco. Agora o leitor espera CRLF completo nas duas etapas.
-- O teste de regressão reproduziu timeout antes da correção e passou depois: requisição inteira e quatro pontos de divisão CR/LF. Com o aplicativo aberto, executar `U1_HTTP_PORT=<porta-local-do-app> python3 tests/web/http-framing.py`.
-- A compilação corrigida abriu a página inicial e a biblioteca; uma pesquisa da U1 abriu o Printables no navegador.
-- Leitura de STL via `--info` concluída com código 0: cubo de 20 × 20 × 20 mm, 12 faces, malha fechada, volume aproximado de 8.000 mm³. O programa também registrou a mensagem de exclusão de mesa sem perfil nesse teste; isso não valida configuração de impressão.
-- Não foi realizada impressão física. Confirmar o diâmetro do bico e os filamentos no perfil antes de fatiar projetos reais; a configuração inicial upstream pode selecionar bico de 0,2 mm.
-- Este é um pacote local. A compilação encontrou o zstd do Homebrew deste Mac; portabilidade para outros Macs e notarização não foram validadas.
+- `resources/web/model-library/`: página principal e controles dos catálogos.
+- `src/slic3r/GUI/ModelLibrary.cpp`: requisições com destinos e campos permitidos, credencial temporária, favoritos e abertura do arquivo baixado.
+- `WebViewPanel::HandleLibraryMessage`: aceita os novos comandos somente na página local da biblioteca.
+- Conteúdo remoto entra como texto ou imagem. HTML remoto não é inserido na interface e não recebe acesso à ponte nativa. Credenciais de conta do Orca não são encaminhadas aos catálogos.

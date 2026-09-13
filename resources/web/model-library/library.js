@@ -1,170 +1,203 @@
-/* Independent U1 library. No catalog scraping, downloads, or print commands. */
+/* U1 Lab home. Provider content is text/data, never executable remote markup. */
 (() => {
   'use strict';
-  const params = new URLSearchParams(location.search);
-  if (location.pathname.includes('/flutter_web/') && params.get('path') !== '0') return;
-  if (document.getElementById('u1-model-library')) return;
-  const sites = [
-    { id: 'printables', name: 'Printables', letter: 'P', color: '#ee6a35', desc: 'Peças úteis, organização e ideias para o dia a dia.', home: 'https://www.printables.com/', search: q => `https://www.printables.com/search/models?q=${encodeURIComponent(q)}` },
-    { id: 'makerworld', name: 'MakerWorld', letter: 'M', color: '#168456', desc: 'Explore projetos criativos e modelos com várias cores.', home: 'https://makerworld.com/', search: q => `https://makerworld.com/en/search/models?keyword=${encodeURIComponent(q)}` },
-    { id: 'thingiverse', name: 'Thingiverse', letter: 'T', color: '#2879c4', desc: 'Acessórios, mecanismos e projetos da comunidade.', home: 'https://www.thingiverse.com/', search: q => `https://www.thingiverse.com/search?q=${encodeURIComponent(q)}&type=things` }
-  ];
-  const key = 'u1-lab:model-links:v1';
-  const host = document.createElement('div');
-  host.id = 'u1-model-library';
-  document.body.append(host);
-  const root = host.attachShadow({ mode: 'open' });
-  const stylesheet = document.createElement('link');
-  stylesheet.rel = 'stylesheet';
-  stylesheet.href = new URL('../model-library/library.css', document.currentScript.src).href;
-  root.append(stylesheet);
-  const content = document.createElement('div');
-  // Only constant markup is inserted as HTML. User values use textContent.
-  content.innerHTML = `
-    <button class="launcher" type="button" aria-haspopup="dialog">◇ Explorar modelos</button>
-    <dialog aria-labelledby="library-title">
-      <div class="panel">
-        <header><span class="brand">U1 / LAB <span class="badge">EXPERIMENTAL</span></span><button class="close" aria-label="Fechar biblioteca" type="button">✕</button></header>
-        <section class="hero"><span class="eyebrow">DA IDEIA À SUA MESA DE IMPRESSÃO</span><h1 id="library-title">Sua próxima criação<br>começa aqui.</h1><p>Encontre modelos em outras comunidades e guarde suas próximas ideias.</p></section>
-        <form class="search"><label class="sr-only" for="query">O que você quer imprimir?</label><input id="query" type="search" maxlength="200" placeholder="O que você quer imprimir? Ex.: organizador" autocomplete="off"><button class="primary" type="submit">Buscar no Printables ↗</button></form>
-        <div class="suggestions"><span>Experimente</span><button type="button" data-query="desk organizer">Organização</button><button type="button" data-query="planter">Vasos</button><button type="button" data-query="snapmaker u1">Para sua U1</button><button type="button" data-query="multicolor">Multicoloridos</button></div>
-        <div class="section-heading"><h2>Explore as comunidades</h2><span>Os resultados abrem no navegador</span></div>
-        <div class="sites"></div>
-        <section class="saved"><div class="section-heading"><h2>Ideias salvas <span class="count">0</span></h2><button type="button" class="add-link">+ Salvar um link</button></div>
-          <form class="bookmark-form" hidden><label>Nome do projeto<input name="title" required maxlength="120" placeholder="Ex.: Organizador de ferramentas"></label><label>Link do modelo<input name="url" type="url" required maxlength="2048" placeholder="https://..."></label><div><button type="submit" class="primary">Salvar ideia</button> <button type="button" class="cancel">Cancelar</button></div></form>
-          <p class="status" role="status" aria-live="polite"></p><div class="bookmarks"></div>
-        </section>
-        <footer><div><strong>Encontrou um modelo?</strong><p>Baixe o STL ou 3MF, volte ao Orca e importe com o perfil Snapmaker U1. Confira cores, materiais e a prévia antes de imprimir.</p></div><button type="button" class="back">Voltar ao Orca →</button></footer>
-      </div>
-    </dialog>`;
-  root.append(content);
-  const $ = selector => root.querySelector(selector);
-  const dialog = $('dialog');
-  const status = $('.status');
-  let bookmarks = [];
-  const allowedURL = value => {
-    try {
-      const url = new URL(value);
-      return url.protocol === 'https:' && !url.username && !url.password ? url.href : null;
-    } catch { return null; }
+  // Old Flutter bundles may still reference this script. Never overlay their UI.
+  if (!location.pathname.endsWith('/model-library/index.html')) return;
+  const $ = s => document.querySelector(s);
+  const status = $('#status');
+  const pending = new Map();
+  let serial = 0, generation = 0, provider = 'snapmaker', view = 'catalog', page = 1;
+  let catalog = [], filtered = [], favorites = [], connected = false, total = 0, previousView = 'catalog';
+  let storageOK = false, busy = false;
+  const format = n => Number(n).toLocaleString('pt-BR');
+  function native(command, data = {}) {
+    if (!window.wx?.postMessage) throw new Error('Abra esta biblioteca pelo U1 Lab para conectar os catálogos.');
+    window.wx.postMessage(JSON.stringify({command, sequence_id: String(Date.now()), ...data}));
+  }
+  function request(command, data = {}) {
+    return new Promise((resolve, reject) => {
+      const id = String(++serial);
+      const timer = setTimeout(() => { pending.delete(id); reject(new Error('A consulta demorou mais que o esperado. Tente novamente.')); }, command === 'u1_import' ? 130000 : 35000);
+      pending.set(id, {resolve, reject, timer});
+      try { native(command, {...data, id}); } catch (e) { clearTimeout(timer); pending.delete(id); reject(e); }
+    });
+  }
+  window.u1LibraryResponse = result => {
+    const item = pending.get(result.id);
+    if (!item) return;
+    pending.delete(result.id); clearTimeout(item.timer);
+    result.ok ? item.resolve(result.data) : item.reject(new Error(result.error || 'Não foi possível concluir a operação.'));
   };
-  try {
-    const saved = JSON.parse(localStorage.getItem(key) || '[]');
-    if (!Array.isArray(saved) || saved.some(item => !item || typeof item.title !== 'string' || typeof item.url !== 'string' || !allowedURL(item.url))) throw new Error('invalid bookmarks');
-    bookmarks = saved;
-  } catch {
-    status.textContent = 'Não foi possível ler as ideias salvas. O conteúdo existente não será substituído.';
-    $('.add-link').disabled = true;
+  function say(text) { status.textContent = text; }
+  function button(label, action, cls = '') {
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.className = cls;
+    b.addEventListener('click', action); return b;
   }
-  function openExternal(value) {
-    const url = allowedURL(value);
-    if (!url) return;
-    if (window.wx && typeof window.wx.postMessage === 'function') {
-      window.wx.postMessage(JSON.stringify({ sequence_id: String(Date.now()), command: 'common_openurl', url }));
-    } else {
-      window.open(url, '_blank', 'noopener,noreferrer');
-    }
+  function show(next) {
+    view = next;
+    for (const name of ['catalog', 'favorites', 'recent', 'connections', 'detail']) $('#' + name).hidden = name !== next;
+    document.querySelectorAll('nav button').forEach(b => b.dataset.view === next ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'));
+    $('h1').textContent = {catalog:'Biblioteca de modelos', favorites:'Modelos salvos', recent:'Arquivos recentes', connections:'Integrações', detail:'Detalhes do modelo'}[next];
+    say('');
+    if (next === 'favorites') cards($('#favorites .grid'), favorites);
+    if (next === 'recent') { try { native('get_recent_projects'); } catch(e) {say(e.message);} }
   }
-  function save(next) {
+  function imageURL(value) {
+    try { const u = new URL(value); return u.protocol === 'https:' && !u.username && !u.password ? u.href : ''; } catch { return ''; }
+  }
+  function model(raw, source) {
+    return {id:String(raw.id), provider:source, name:String(raw.name || 'Modelo sem título'),
+      creator:String(source === 'snapmaker' ? raw.creator || 'Criador não informado' : raw.creator?.name || 'Criador não informado'),
+      image:imageURL(source === 'snapmaker' ? raw.pic : raw.thumbnail), date:source === 'snapmaker' ? Number(raw.publishedDate) : Date.parse(raw.added), onlyGcode:raw.isOnlyGcode === true};
+  }
+  const same = (a,b) => a.id === b.id && a.provider === b.provider;
+  async function save(item) {
+    if (!storageOK) {say('Não foi possível acessar os modelos salvos. Reinicie a biblioteca antes de salvar.');return;}
+    const next = favorites.some(m => same(m,item)) ? favorites.filter(m => !same(m,item)) : [...favorites,item];
     try {
-      localStorage.setItem(key, JSON.stringify(next));
-      bookmarks = next;
-      status.textContent = '';
-      renderBookmarks();
-      return true;
-    } catch {
-      status.textContent = 'Não foi possível salvar neste navegador. Suas ideias anteriores foram mantidas.';
-      return false;
+      await request('u1_save_favorites', {items:next}); favorites = next;
+      if(view === 'favorites') cards($('#favorites .grid'), favorites); else render();
+    } catch(e) {say(e.message);}
+  }
+  function cards(container, items) {
+    container.replaceChildren();
+    if (!items.length) { const p = document.createElement('p');p.className='empty';p.textContent='Nenhum modelo encontrado nesta seleção.';container.append(p);return; }
+    for (const item of items) {
+      const article = document.createElement('article');article.className='card';
+      const open = button('', () => detail(item), 'open-model');
+      const img = document.createElement('img');img.loading='lazy';img.alt=''; if(item.image)img.src=item.image;
+      img.addEventListener('error',()=>img.removeAttribute('src'), {once:true});
+      const info = document.createElement('div');info.className='info';
+      const source = document.createElement('div');source.className='source';source.textContent=item.provider === 'snapmaker' ? 'Snapmaker' : 'Thingiverse';
+      const name=document.createElement('strong');name.textContent=item.name;
+      const author=document.createElement('small');author.textContent=item.creator;
+      info.append(source,name,author);open.append(img,info);
+      const saved=favorites.some(m=>same(m,item));const star=button(saved?'♥':'♡',()=>save(item),'save');
+      star.setAttribute('aria-label',`${saved?'Remover dos salvos':'Salvar'}: ${item.name}`);star.setAttribute('aria-pressed',String(saved));
+      article.append(open,star);container.append(article);
     }
   }
-  function renderBookmarks() {
-    const list = $('.bookmarks');
-    list.replaceChildren();
-    $('.count').textContent = bookmarks.length;
-    if (!bookmarks.length) {
-      const empty = document.createElement('p');
-      empty.className = 'empty';
-      empty.textContent = 'Uma boa ideia merece ser guardada. Salve o link de um modelo para encontrá-lo depois.';
-      list.append(empty);
-      return;
+  function field(parent, label, name, options, type = 'text') {
+    const wrapper=document.createElement('label');wrapper.textContent=label;
+    const input=document.createElement(options ? 'select':'input');input.name=name;input.setAttribute('aria-label',label);
+    if(options)for(const [value,text] of options){const o=document.createElement('option');o.value=value;o.textContent=text;input.append(o);}
+    else {input.type=type;input.maxLength=150;}
+    wrapper.append(input);parent.append(wrapper);return input;
+  }
+  function filters() {
+    const normal=$('#provider-filters');normal.replaceChildren();const advanced=$('.advanced-fields');advanced.replaceChildren();
+    $('#advanced').hidden=provider!=='thingiverse';
+    if(provider==='snapmaker') {
+      field(normal,'Ordenar por','sort',[['newest','Mais recentes'],['oldest','Mais antigos'],['name','Nome do modelo']]);
+      field(normal,'Arquivos','file',[['','Todos'],['model','STL ou 3MF'],['gcode','Somente G-code']]);
+      const authors=[...new Set(catalog.map(m=>m.creator))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+      field(normal,'Criador','author',[['','Todos os criadores'],...authors.map(a=>[a,a])]);
+      $('#scope').textContent='Busca e filtros sobre o catálogo Snapmaker carregado. Títulos e descrições dos criadores são preservados no idioma original.';
+    } else if(provider==='thingiverse') {
+      field(normal,'Ordenar por','sort',[['relevant','Relevância'],['text','Correspondência do texto'],['popular','Popularidade'],['makes','Impressões da comunidade'],['newest','Mais recentes']]);
+      field(normal,'Resultados por página','per_page',[['20','20'],['10','10'],['30','30']]);
+      for(const [name,label] of [['posted_after','Publicado após'],['posted_before','Publicado antes']])field(advanced,label,name,null,'date');
+      for(const [name,label] of [['license','Código da licença'],['category_id','Identificador da categoria'],['subjects','Disciplinas (identificadores)'],['grades','Séries escolares (identificadores)'],['standards','Normas educacionais (identificadores)'],['liked_by','Curtido pelo usuário (identificador)'],['made_by','Impresso pelo usuário (identificador)']])field(advanced,label,name);
+      for(const [name,label] of [['is_edu_approved','Aprovado para educação'],['customizable','Personalizável'],['show_customized','Incluir personalizações'],['has_makes','Com impressões da comunidade'],['is_featured','Em destaque'],['is_derivative','Remix'],['is_fis_challenge_winnereatured','Vencedor de desafio (experimental)']])field(advanced,label,name,[['','Padrão da plataforma'],['1','Sim'],['0','Não']]);
+      $('#scope').textContent='Filtros enviados à API oficial do Thingiverse. Os identificadores seguem os valores da plataforma. O filtro experimental mantém a grafia publicada na documentação e ainda exige validação com uma conta conectada.';
+    } else $('#scope').textContent='Esta plataforma ainda não está conectada. Consulte Integrações para ver o motivo.';
+  }
+  function values() {return Object.fromEntries([...$('#search').querySelectorAll('[name]')].map(x=>[x.name,x.value]));}
+  function render() {
+    if(provider==='snapmaker') {
+      const f=values(),q=$('#query').value.trim().toLocaleLowerCase('pt-BR');
+      filtered=catalog.filter(m=>(!q || `${m.name} ${m.creator}`.toLocaleLowerCase('pt-BR').includes(q)) && (!f.author || m.creator===f.author) && (!f.file || m.onlyGcode===(f.file==='gcode')));
+      filtered.sort((a,b)=>f.sort==='name'?a.name.localeCompare(b.name,'pt-BR'):f.sort==='oldest'?a.date-b.date:b.date-a.date);
+      total=filtered.length;
     }
-    bookmarks.forEach((item, index) => {
-      const row = document.createElement('div');
-      row.className = 'bookmark';
-      const link = document.createElement('button');
-      link.type = 'button';
-      link.className = 'bookmark-link';
-      const title = document.createElement('strong');
-      title.textContent = item.title;
-      const domain = document.createElement('span');
-      domain.textContent = new URL(item.url).hostname;
-      link.append(title, domain);
-      link.addEventListener('click', () => openExternal(item.url));
-      const remove = document.createElement('button');
-      remove.type = 'button';
-      remove.className = 'remove';
-      remove.textContent = 'Remover';
-      remove.setAttribute('aria-label', `Remover ${item.title}`);
-      remove.addEventListener('click', () => save(bookmarks.filter((_, i) => i !== index)));
-      row.append(link, remove);
-      list.append(row);
-    });
+    const size=provider==='snapmaker'?24:Number(values().per_page || 20);
+    const pages=Math.max(1,Math.ceil(total/size));page=Math.min(page,pages);
+    cards($('#results'),provider==='snapmaker'?filtered.slice((page-1)*size,page*size):filtered);
+    $('#results-title').textContent=`${format(total)} ${total===1?'modelo':'modelos'}`;
+    $('#page-label').textContent=`Página ${format(page)} de ${format(pages)}`;
+    $('#previous').disabled=page<=1 || busy;$('#next').disabled=page>=pages || busy;
   }
-  for (const site of sites) {
-    const card = document.createElement('article');
-    card.className = 'site';
-    card.style.setProperty('--site-color', site.color);
-    const icon = document.createElement('span');
-    icon.className = 'site-icon';
-    icon.textContent = site.letter;
-    const name = document.createElement('h3');
-    name.textContent = site.name;
-    const desc = document.createElement('p');
-    desc.textContent = site.desc;
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.dataset.site = site.id;
-    button.textContent = `Explorar ${site.name} ↗`;
-    button.addEventListener('click', () => {
-      const q = $('#query').value.trim();
-      openExternal(q ? site.search(q) : site.home);
-    });
-    card.append(icon, name, desc, button);
-    $('.sites').append(card);
+  async function search(reset=true) {
+    const run=++generation;if(reset)page=1;
+    if(provider==='snapmaker' && catalog.length){render();return;}
+    if(['printables','makerworld'].includes(provider)){filtered=[];total=0;render();say('Integração ainda indisponível. Nenhuma busca foi enviada. Veja a seção Integrações.');return;}
+    if(provider==='thingiverse' && !connected){filtered=[];total=0;render();say('Conecte seu aplicativo Thingiverse em Integrações para pesquisar aqui.');return;}
+    busy=true;$('#refresh').disabled=true;say('Consultando o catálogo…');
+    try {
+      if(provider==='snapmaker') {
+        const loaded=[];let p=1;let count=Infinity;
+        while(loaded.length<count && p<=100) {
+          const response=await request('u1_search',{provider,page:p});if(run!==generation)return;
+          if(!Array.isArray(response.data?.models))throw new Error('O formato do catálogo Snapmaker mudou.');
+          const batch=response.data.models.map(x=>model(x,'snapmaker'));if(!batch.length)break;
+          const before=loaded.length;for(const item of batch)if(!loaded.some(m=>same(m,item)))loaded.push(item);
+          if(loaded.length===before)throw new Error('O catálogo repetiu a página. Tente atualizar mais tarde.');
+          count=Number(response.page?.total ?? loaded.length);catalog=[...loaded];render();
+          say(`Carregando ${format(loaded.length)} de ${format(count)} modelos…`);p++;
+        }
+        filters();
+      } else {
+        const response=await request('u1_search',{provider,query:$('#query').value.trim(),page,filters:values()});if(run!==generation)return;
+        if(!Array.isArray(response.hits))throw new Error('O formato do catálogo Thingiverse mudou.');
+        filtered=response.hits.map(x=>model(x,'thingiverse'));total=Number(response.total || 0);
+      }
+      say('');render();
+    } catch(e){if(run===generation)say(e.message + (catalog.length && provider==='snapmaker'?' Os resultados carregados até agora foram mantidos.':''));}
+    finally {if(run===generation){busy=false;$('#refresh').disabled=false;render();}}
   }
-  function show() { if (!dialog.open) dialog.showModal(); $('#query').focus(); }
-  function close() { dialog.close(); $('.launcher').focus(); }
-  dialog.addEventListener('keydown', event => {
-    if (event.key === 'Escape') { event.preventDefault(); close(); }
+  function plain(html) {
+    // Parse into an inert document, then retain only text. No links, images or remote script enter the page.
+    const doc=new DOMParser().parseFromString(String(html || ''),'text/html');
+    doc.querySelectorAll('script,style,iframe,object').forEach(el=>el.remove());
+    doc.querySelectorAll('p,li,br,h1,h2,h3').forEach(el=>el.append('\n'));
+    return doc.body.textContent.trim();
+  }
+  async function detail(item) {
+    ++generation;busy=false;$('#refresh').disabled=false;previousView=view;show('detail');$('#detail-body').replaceChildren();say('Carregando detalhes…');
+    const run=generation;
+    try {
+      const response=await request('u1_detail',{provider:item.provider,model_id:item.id});if(run!==generation || view!=='detail')return;
+      const data=item.provider==='snapmaker'?response.data:response;
+      const grid=document.createElement('div');grid.className='detail-grid';const img=document.createElement('img');img.alt='';
+      const pic=imageURL(data.pics?.[0] || item.image);if(pic)img.src=pic;
+      const info=document.createElement('div'),title=document.createElement('h2');title.textContent=String(data.name || item.name);
+      const by=document.createElement('p');by.textContent=`${item.creator} · ${item.provider==='snapmaker'?'Snapmaker':'Thingiverse'}`;
+      const rights=document.createElement('p');rights.className='muted';rights.textContent='Licença e atribuição: '+plain(typeof data.license==='string'?data.license:data.copyright?.content || 'Consulte as informações do criador.');
+      const label=document.createElement('p');label.className='muted';label.textContent='Descrição original do criador';
+      const description=document.createElement('div');description.className='description';description.textContent=plain(data.description || data.description_html || data.details || 'Este modelo não possui descrição.');
+      info.append(title,by,rights);
+      if(response.import_available){const importButton=button('Importar no projeto',async()=>{
+        importButton.disabled=true;say('Baixando o modelo para abrir no Orca…');
+        try{await request('u1_import',{provider:item.provider,model_id:item.id});say('Modelo baixado. Confira o perfil, os materiais e o conteúdo importado na aba Preparar.');}catch(e){say(e.message);}finally{importButton.disabled=false;}
+      },'primary');info.append(importButton);}
+      else {const note=document.createElement('p');note.className='muted';note.textContent='A importação direta deste modelo ainda não está disponível.';info.append(note);}
+      info.append(label,description);grid.append(img,info);$('#detail-body').append(grid);say('');
+    }catch(e){if(run===generation)say(e.message);}
+  }
+  document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{++generation;busy=false;$('#refresh').disabled=false;show(b.dataset.view);}));
+  $('#back').addEventListener('click',()=>{++generation;show(previousView==='favorites'?'favorites':'catalog');});
+  $('#provider').addEventListener('change',()=>{provider=$('#provider').value;filtered=[];total=0;page=1;filters();search();});
+  $('#search').addEventListener('submit',e=>{e.preventDefault();search();});
+  $('#provider-filters').addEventListener('change',()=>search());
+  $('#refresh').addEventListener('click',()=>{catalog=[];search();});
+  $('#previous').addEventListener('click',()=>{page--;provider==='snapmaker'?render():search(false);});
+  $('#next').addEventListener('click',()=>{page++;provider==='snapmaker'?render():search(false);});
+  for(const [id,command] of [['open-project','homepage_openproject'],['new-project','homepage_newproject']])$('#'+id).addEventListener('click',()=>{try{native(command);}catch(e){say(e.message);}});
+  function connection(data){connected=data.thingiverse;$('#thingiverse-state').textContent=connected?'Conectado nesta sessão':'Conexão necessária';$('#disconnect').disabled=!connected;}
+  $('#connect').addEventListener('click',async()=>{try{connection(await request('u1_configure_thingiverse'));}catch(e){say(e.message);}});
+  $('#disconnect').addEventListener('click',async()=>{try{connection(await request('u1_disconnect_thingiverse'));}catch(e){say(e.message);}});
+  window.addEventListener('message',event=>{
+    let data=event.data;try{if(typeof data==='string')data=JSON.parse(data);}catch{return;}
+    if(data?.command!=='get_recent_projects')return;
+    const list=$('.recent-list');list.replaceChildren();
+    for(const item of Array.isArray(data.response)?data.response:[]){const b=button(item.project_name,()=>{try{native('homepage_open_recentfile',{data:{path:item.path}});}catch(e){say(e.message);}});list.append(b);}
+    if(!list.children.length)list.textContent='Nenhum projeto recente neste perfil.';
   });
-  $('.launcher').addEventListener('click', show);
-  $('.close').addEventListener('click', close);
-  $('.back').addEventListener('click', close);
-  $('.search').addEventListener('submit', event => {
-    event.preventDefault();
-    const q = $('#query').value.trim();
-    openExternal(q ? sites[0].search(q) : sites[0].home);
-  });
-  $('#query').addEventListener('input', () => {
-    const q = $('#query').value.trim();
-    for (const site of sites) $(`[data-site="${site.id}"]`).textContent = `${q ? 'Buscar no' : 'Explorar'} ${site.name} ↗`;
-  });
-  root.querySelectorAll('[data-query]').forEach(button => button.addEventListener('click', () => {
-    $('#query').value = button.dataset.query;
-    $('#query').dispatchEvent(new Event('input'));
-    $('#query').focus();
-  }));
-  const form = $('.bookmark-form');
-  $('.add-link').addEventListener('click', () => { form.hidden = false; form.elements.title.focus(); });
-  $('.cancel').addEventListener('click', () => { form.hidden = true; form.reset(); });
-  form.addEventListener('submit', event => {
-    event.preventDefault();
-    const title = form.elements.title.value.trim();
-    const url = allowedURL(form.elements.url.value.trim());
-    if (!title || !url) { status.textContent = 'Informe um nome e um link HTTPS válido, sem usuário ou senha.'; return; }
-    if (bookmarks.some(item => item.url === url)) { status.textContent = 'Este link já está nas suas ideias salvas.'; return; }
-    if (save([...bookmarks, { title, url }])) { form.hidden = true; form.reset(); }
-  });
-  renderBookmarks();
-  if (params.get('library') === '1') show();
+  async function init(){
+    filters();
+    for(let attempt=0; !window.wx?.postMessage && attempt<50; attempt++) await new Promise(resolve=>setTimeout(resolve,100));
+    try{connection(await request('u1_status'));favorites=await request('u1_load_favorites');storageOK=true;}catch(e){say(e.message);}
+    await search();
+  }
+  init();
 })();

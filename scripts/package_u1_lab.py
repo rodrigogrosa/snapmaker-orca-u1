@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Package the web library with an existing macOS runtime, without rebuilding C++."""
+"""Package a compiled U1 runtime and its Brazilian home page into an isolated app."""
 import argparse
 import hashlib
 import json
@@ -15,6 +15,8 @@ parser.add_argument('--output', type=Path, required=True, help='New, separate .a
 parser.add_argument('--source-build', action='store_true', help='Source is the locally compiled bundle from this fork')
 parser.add_argument('--profile', type=Path, required=True, help='Separate development data directory')
 args = parser.parse_args()
+if not args.source_build:
+    parser.error('The integrated library requires a native build from this fork (--source-build).')
 source, output, profile = (p.expanduser().resolve() for p in (args.source, args.output, args.profile))
 repo = Path(__file__).resolve().parents[1]
 if output.exists() or source == output or source in output.parents:
@@ -34,15 +36,27 @@ if '</body>' not in source_index.read_text():
     parser.error('Source Flutter entry point not recognized.')
 profile.mkdir(parents=True, exist_ok=True)
 (profile / '.u1-lab-profile').touch()
+config_path = profile / 'Snapmaker_Orca.conf'
+config = json.loads(config_path.read_text()) if config_path.exists() else {}
+app_config = config.setdefault('app', {})
+if app_config.get('language') != 'pt_BR' or app_config.get('region') != 'Brazil':
+    backup = profile / 'Snapmaker_Orca.conf.before-u1-br'
+    if config_path.exists() and not backup.exists():
+        shutil.copy2(config_path, backup)
+    app_config.update(language='pt_BR', region='Brazil')
+    config_path.write_text(json.dumps(config, ensure_ascii=False, indent=4) + '\n')
+
 output.parent.mkdir(parents=True, exist_ok=True)
 subprocess.run(['ditto', str(source), str(output)], check=True)
 resources = output / 'Contents/Resources'
 shutil.copytree(repo / 'resources/web/model-library', resources / 'web/model-library', dirs_exist_ok=True)
-index = resources / 'web/flutter_web/index.html'
-text = index.read_text()
-if '../model-library/library.js' not in text:
-    text = text.replace('</body>', '<script src="../model-library/library.js"></script></body>')
-index.write_text(text)
+for relative in ['index.html', 'locale-pt-br.js', 'assets/assets/i10n/pt-BR.json', 'assets/assets/i10n/en.json']:
+    shutil.copy2(repo / 'resources/web/flutter_web' / relative, resources / 'web/flutter_web' / relative)
+# Compile gettext into the package, including newly completed Brazilian messages.
+locale_dir = resources / 'i18n/pt_BR'
+locale_dir.mkdir(parents=True, exist_ok=True)
+subprocess.run(['msgfmt', '--check', '-o', str(locale_dir / 'Snapmaker_Orca.mo'),
+                str(repo / 'localization/i18n/pt_BR/Snapmaker_Orca_pt_BR.po')], check=True)
 launcher = output / 'Contents/MacOS/U1Lab'
 launcher.write_text('#!/bin/bash\nset -e\nAPP_BIN="$(cd "$(dirname "$0")" && pwd)"\n'
                     'exec "$APP_BIN"/' + shlex.quote(exe) + ' --datadir ' + shlex.quote(str(profile)) + ' "$@"\n')

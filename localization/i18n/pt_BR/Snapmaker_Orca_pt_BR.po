@@ -268,10 +268,10 @@ msgid "Part selection"
 msgstr "Seleção de peça"
 
 msgid "Fixed step drag"
-msgstr ""
+msgstr "Arrastar em passos fixos"
 
 msgid "Single sided scaling"
-msgstr ""
+msgstr "Escalonamento de um único lado"
 
 msgid "Position"
 msgstr "Posição"
@@ -1577,7 +1577,7 @@ msgstr "Tempo de execução WebView2"
 
 #, c-format, boost-format
 msgid "Resources path does not exist or is not a directory: %s"
-msgstr ""
+msgstr "O caminho dos recursos não existe ou não é um diretório: %s"
 
 #, c-format, boost-format
 msgid ""
@@ -5082,7 +5082,7 @@ msgid "Junction Deviation calibration"
 msgstr "Calibração do Desvio de Junção"
 
 msgid "Cornering"
-msgstr ""
+msgstr "Contorno de cantos"
 
 msgid "Input Shaping Frequency"
 msgstr "Frequência da Modelagem de Entrada"
@@ -6290,12 +6290,12 @@ msgid ""
 "This project was created with an Snapmaker Orca 2.3.1-alpha and uses infill "
 "rotation template settings that may not work properly with your current "
 "infill pattern. This could result in weak support or print quality issues."
-msgstr ""
+msgstr "Este projeto foi criado com o Snapmaker Orca 2.3.1-alpha e usa configurações de modelo de rotação do preenchimento que podem não funcionar corretamente com seu padrão de preenchimento atual. Isso pode causar suportes frágeis ou problemas na qualidade de impressão."
 
 msgid ""
 "Would you like Snapmaker Orca to automatically fix this by clearing the rotation "
 "template settings?"
-msgstr ""
+msgstr "Deseja que o Snapmaker Orca corrija isso automaticamente, limpando as configurações do modelo de rotação?"
 
 #, c-format, boost-format
 msgid ""
@@ -6574,7 +6574,7 @@ msgstr ""
 "manualmente."
 
 msgid "INFO:"
-msgstr ""
+msgstr "INFORMAÇÃO:"
 
 msgid ""
 "No accelerations provided for calibration. Use default acceleration value "
@@ -7039,11 +7039,11 @@ msgstr ""
 "para cada impressora automaticamente."
 
 msgid "Show the step mesh parameter setting dialog."
-msgstr ""
+msgstr "Mostrar a caixa de configuração dos parâmetros da malha STEP."
 
 msgid ""
 "If enabled,a parameter settings dialog will appear during STEP file import."
-msgstr ""
+msgstr "Se ativado, uma caixa de configuração dos parâmetros aparecerá durante a importação de arquivos STEP."
 
 msgid "Multi-device Management (Take effect after restarting Snapmaker Orca)."
 msgstr ""
@@ -8157,7 +8157,7 @@ msgid "Support filament"
 msgstr "Filamento de suporte"
 
 msgid "Support ironing"
-msgstr ""
+msgstr "Alisamento dos suportes"
 
 msgid "Tree supports"
 msgstr "Suportes de árvore"
@@ -12325,11 +12325,11 @@ msgstr ""
 "Zero é vertical."
 
 msgid "Infill overhang angle"
-msgstr ""
+msgstr "Ângulo de balanço do preenchimento"
 
 msgid ""
 "The angle of the infill angled lines. 60° will result in a pure honeycomb."
-msgstr ""
+msgstr "O ângulo das linhas inclinadas do preenchimento. Um valor de 60° resulta em uma colmeia regular."
 
 msgid "Sparse infill anchor length"
 msgstr "Comprimento da âncora de preenchimento esparso"
@@ -12598,7 +12598,7 @@ msgstr ""
 "por um período prolongado de tempo."
 
 msgid "Ironing fan speed"
-msgstr ""
+msgstr "Velocidade do ventilador durante o alisamento"
 
 msgid ""
 "This part cooling fan speed is applied when ironing. Setting this parameter "
@@ -14783,7 +14783,7 @@ msgid "Purge remaining filament into prime tower."
 msgstr "Purgar o filamento restante na torre de preparo."
 
 msgid "Enable filament ramming"
-msgstr ""
+msgstr "Ativar a purga por compressão do filamento"
 
 msgid "No sparse layers (beta)"
 msgstr "Sem camadas esparsas (beta)"
@@ -15273,10 +15273,10 @@ msgstr ""
 "ativada, a interface de suporte também será extrudada como sólida."
 
 msgid "Support Ironing Pattern"
-msgstr ""
+msgstr "Padrão de alisamento dos suportes"
 
 msgid "Support Ironing flow"
-msgstr ""
+msgstr "Fluxo de alisamento dos suportes"
 
 msgid ""
 "The amount of material to extrude during ironing. Relative to flow of normal "
@@ -15288,7 +15288,7 @@ msgstr ""
 "em superextrusão na superfície."
 
 msgid "Support Ironing line spacing"
-msgstr ""
+msgstr "Espaçamento entre linhas de alisamento dos suportes"
 
 msgid "Activate temperature control"
 msgstr "Ativar controle de temperatura"
@@ -15621,13 +15621,13 @@ msgid "Rib width"
 msgstr "Largura da nervura"
 
 msgid "Rib width."
-msgstr ""
+msgstr "Largura da nervura."
 
 msgid "Fillet wall"
-msgstr ""
+msgstr "Arredondar a parede"
 
 msgid "The wall of prime tower will fillet."
-msgstr ""
+msgstr "A parede da torre de purga será arredondada."
 
 msgid ""
 "The extruder to use when printing perimeter of the wipe tower. Set to 0 to "
@@ -16043,13 +16043,13 @@ msgid "export 3mf with minimum size."
 msgstr "exportar 3mf com tamanho mínimo."
 
 msgid "mtcpp"
-msgstr ""
+msgstr "mtcpp"
 
 msgid "max triangle count per plate for slicing."
 msgstr "contagem máxima de triângulos por placa para fatiar."
 
 msgid "mstpp"
-msgstr ""
+msgstr "mstpp"
 
 msgid "max slicing time per plate in seconds."
 msgstr "tempo máximo de fatiamento por placa em segundos."
@@ -17469,7 +17469,7 @@ msgid "Test model"
 msgstr "Modelo de teste"
 
 msgid "Ringing Tower"
-msgstr ""
+msgstr "Torre de teste de ressonância"
 
 msgid "Fast Tower"
 msgstr "Torre Rápida"
@@ -17551,7 +17551,7 @@ msgstr ""
 "(0 <= Desvio de Junção < 1)"
 
 msgid "NOTE: High values may cause Layer shift"
-msgstr ""
+msgstr "OBSERVAÇÃO: valores altos podem causar deslocamento de camadas"
 
 msgid "Send G-code to printer host"
 msgstr "Enviar G-code para o host da impressora"
@@ -18249,7 +18249,7 @@ msgid "Daily Tips"
 msgstr "Dicas Diárias"
 
 msgid "BigTraffic"
-msgstr ""
+msgstr "Tráfego intenso"
 
 #, c-format, boost-format
 msgid "nozzle in preset: %s %s"
@@ -18774,7 +18774,7 @@ msgstr ""
 "Algo inesperado aconteceu ao tentar conectar, por favor tente novamente."
 
 msgid "User cancelled."
-msgstr ""
+msgstr "Cancelado pelo usuário."
 
 msgid "Head diameter"
 msgstr "Diâmetro da cabeça"
@@ -18814,7 +18814,7 @@ msgstr ""
 "borda não terão efeito!"
 
 msgid "Set the brim type of this object to \"painted\""
-msgstr ""
+msgstr "Definir o tipo de borda deste objeto como \"pintada\""
 
 msgid " invalid brim ears"
 msgstr " orelhas da borda iválidas"
@@ -19827,3 +19827,1366 @@ msgstr ""
 
 #~ msgid "Printer local connection failed, please try again."
 #~ msgstr "Falha na conexão local da impressora, por favor tente novamente."
+
+msgid "Brazil"
+msgstr "Brasil"
+
+
+msgid "Selected filament"
+msgstr "Filamento selecionado"
+
+#, c-format, boost-format
+msgid "/ %d"
+msgstr "/ %d"
+
+msgid "Release"
+msgstr "Versão"
+
+msgid ""
+"Snapmaker Orca will terminate because of running out of memory.It may be a "
+"bug. It will be appreciated if you report the issue to our team."
+msgstr "O Snapmaker Orca será encerrado por falta de memória. Isso pode ser um erro do programa. Agradecemos se você relatar o problema à nossa equipe."
+
+msgid ""
+"Failed to install Web UI resources. Some features may not work correctly.\n"
+"Please check disk space and file permissions, then restart the application."
+msgstr "Falha ao instalar os recursos da interface web. Algumas funções podem não funcionar corretamente.\nVerifique o espaço em disco e as permissões dos arquivos e reinicie o aplicativo."
+
+msgid ""
+"Failed to update Web UI resources. The application will continue using the "
+"previous version."
+msgstr "Falha ao atualizar os recursos da interface web. O aplicativo continuará usando a versão anterior."
+
+msgid "import failed!"
+msgstr "Falha na importação!"
+
+msgid ""
+"The version of Snapmaker Orca is too low and needs to be updated to the "
+"latest version before it can be used normally"
+msgstr "A versão do Snapmaker Orca está desatualizada e precisa ser atualizada para a versão mais recente para funcionar normalmente."
+
+#, c-format, boost-format
+msgid "request to server update soft fail with body:%s,error:%s,status:%d"
+msgstr "Falha na solicitação de atualização ao servidor. Resposta: %s, erro: %s, status: %d"
+
+#, c-format, boost-format
+msgid "Mixed Filament %d"
+msgstr "Filamento misto %d"
+
+msgid "Delete this filament"
+msgstr "Excluir este filamento"
+
+msgid "Merge with"
+msgstr "Mesclar com"
+
+msgid "Snapmaker Orca is Based on Orca Slicer"
+msgstr "O Snapmaker Orca é baseado no Orca Slicer"
+
+msgid "Snapmaker Orca "
+msgstr "Snapmaker Orca "
+
+msgid "Note: The firmware version of SnapmakerU1 should be no less than"
+msgstr "Observação: a versão do firmware da Snapmaker U1 deve ser igual ou superior a"
+
+msgid "Snapmaker Orca is forked from Orca Slicer by SoftFever."
+msgstr "O Snapmaker Orca é derivado do Orca Slicer, de SoftFever."
+
+msgid "OrcaSlicer is forked from Bambu Studio by Bambu Lab."
+msgstr "O OrcaSlicer é derivado do Bambu Studio, da Bambu Lab."
+
+msgid ""
+"Bambu Studio is forked from PrusaSlicer by Prusa Research, which is from "
+"Slic3r by Alessandro Ranellucci and the RepRap community. Orca Slicer "
+"incorporates a lot of features from SuperSlicer by @supermerill."
+msgstr "O Bambu Studio é derivado do PrusaSlicer, da Prusa Research, que vem do Slic3r, de Alessandro Ranellucci e da comunidade RepRap. O Orca Slicer incorpora diversas funções do SuperSlicer, de @supermerill."
+
+msgid ""
+"Snapmaker Orca integrates some features from the 3D printing open-source "
+"community, with specific attributions provided in the code comments."
+msgstr "O Snapmaker Orca integra funções da comunidade de impressão 3D de código aberto, com as respectivas atribuições nos comentários do código."
+
+msgid ""
+"Snapmaker Orca is licensed under the GNU Affero General Public License, "
+"version 3."
+msgstr "O Snapmaker Orca é licenciado sob a GNU Affero General Public License, versão 3."
+
+msgid "Fit in all view"
+msgstr "Ajustar tudo à visualização"
+
+msgid ""
+"Model too close to bed boundary. Disable spiral lifting or keep at least "
+"3.5mm gap to avoid collision."
+msgstr "Modelo muito próximo da borda da mesa. Desative a elevação em espiral ou mantenha uma distância mínima de 3,5 mm para evitar colisões."
+
+msgid "Export Logs"
+msgstr "Exportar registros"
+
+msgid "Export application logs as ZIP file"
+msgstr "Exportar registros do aplicativo como arquivo ZIP"
+
+msgid "Check for Process Preset Updates"
+msgstr "Verificar atualizações dos perfis de processo"
+
+msgid "Check for Web Resource Updates"
+msgstr "Verificar atualizações dos recursos web"
+
+msgid "Import Profile"
+msgstr "Importar perfil"
+
+msgid "Import Web Resource"
+msgstr "Importar recursos web"
+
+msgid "downloading the model"
+msgstr "Baixando o modelo"
+
+#, c-format, boost-format
+msgid "The downloaded file '%s' is not a valid 3MF project file."
+msgstr "O arquivo baixado '%s' não é um projeto 3MF válido."
+
+msgid "Invalid File"
+msgstr "Arquivo inválido"
+
+msgid "No logs found."
+msgstr "Nenhum registro encontrado."
+
+msgid "Save logs as ZIP file"
+msgstr "Salvar registros como arquivo ZIP"
+
+msgid "Logs exported successfully."
+msgstr "Registros exportados."
+
+#, c-format, boost-format
+msgid "Failed to export logs: %s"
+msgstr "Falha ao exportar registros: %s"
+
+msgid ""
+"The .gcode.3mf file contains no G-code data. Please slice it with Snapmaker "
+"Orca and export a new .gcode.3mf file."
+msgstr "O arquivo .gcode.3mf não contém dados G-code. Faça o fatiamento no Snapmaker Orca e exporte um novo arquivo .gcode.3mf."
+
+msgid "select file"
+msgstr "Selecionar arquivo"
+
+msgid "UpLoad Failed"
+msgstr "Falha no envio"
+
+msgid " has already been uploaded"
+msgstr " já foi enviado"
+
+msgid "UpLoad Successfully"
+msgstr "Envio concluído"
+
+msgid "Save file"
+msgstr "Salvar arquivo"
+
+msgid " download failed"
+msgstr " falhou ao baixar"
+
+msgid "DownLoad Failed"
+msgstr "Falha no download"
+
+msgid " has already been downloaded"
+msgstr " já foi baixado"
+
+msgid "DownLoad Successfully"
+msgstr "Download concluído"
+
+msgid "setting failed"
+msgstr "Falha na configuração"
+
+msgid "Print Job Setting"
+msgstr "Configuração da tarefa de impressão"
+
+msgid "Create Failed"
+msgstr "Falha ao criar"
+
+msgid "Device disconnected."
+msgstr "Dispositivo desconectado."
+
+msgid "Failed to download the file. Please check your network and try again."
+msgstr "Falha ao baixar o arquivo. Verifique a rede e tente novamente."
+
+msgid "Waiting for device to upload"
+msgstr "Aguardando o envio pelo dispositivo"
+
+msgid ""
+"Connection has been disconnected and recovery attempt failed. Please "
+"reconnect."
+msgstr "A conexão foi interrompida e a tentativa de recuperação falhou. Conecte novamente."
+
+msgid "Machine Disconnected"
+msgstr "Máquina desconectada"
+
+msgid ""
+"Updating your Snapmaker Orca could enable all functionality in the 3MF file."
+msgstr "Atualizar o Snapmaker Orca pode habilitar todas as funções do arquivo 3MF."
+
+msgid ""
+"The current version of Snapmaker Orca cannot fully load this 3MF file. "
+"Please update to the latest version and try again."
+msgstr "A versão atual do Snapmaker Orca não consegue carregar completamente este arquivo 3MF. Atualize para a versão mais recente e tente novamente."
+
+msgid "Loading 3MF"
+msgstr "Carregando 3MF"
+
+#, boost-format
+msgid ""
+"The Cool Steel Plate is not recommended for %1%. To continue printing, set "
+"the bed temperature above 0°C for this filament."
+msgstr "A placa de aço fria não é recomendada para %1%. Para continuar imprimindo, defina a temperatura da mesa acima de 0 °C para este filamento."
+
+#, boost-format
+msgid ""
+"The Cool Steel Plate is not recommended for %1%. It may be hard to remove. "
+"Use a textured PEI plate or heat the bed."
+msgstr "A placa de aço fria não é recomendada para %1%. A remoção pode ser difícil. Use uma placa PEI texturizada ou aqueça a mesa."
+
+msgid "Add Color"
+msgstr "Adicionar cor"
+
+msgid ""
+"Pick from the current filament gamut. The dialog previews the closest 2-"
+"color, 3-color, or 4-color FilamentMixer recipe before it is added."
+msgstr "Escolha uma cor da gama dos filamentos atuais. A janela mostra a receita mais próxima do FilamentMixer com 2, 3 ou 4 cores antes de adicioná-la."
+
+msgid "Hex"
+msgstr "Hexadecimal"
+
+msgid ""
+"Enter a hex color like #00FF88. The picker will snap to the closest "
+"supported FilamentMixer color."
+msgstr "Digite uma cor hexadecimal, como #00FF88. O seletor usará a cor compatível mais próxima do FilamentMixer."
+
+msgid ""
+"Classic color picker. The result will snap to the closest supported "
+"FilamentMixer color."
+msgstr "Seletor clássico de cores. O resultado será ajustado à cor compatível mais próxima do FilamentMixer."
+
+msgid ""
+"Minimum percent for each participating color. Higher values block highly "
+"skewed mixes."
+msgstr "Porcentagem mínima de cada cor participante. Valores maiores impedem misturas muito desequilibradas."
+
+msgid "Requested"
+msgstr "Solicitada"
+
+msgid "Creates"
+msgstr "Cria"
+
+msgid "Exact preset mixes"
+msgstr "Misturas exatas do perfil"
+
+msgid "Matching closest supported mix..."
+msgstr "Buscando a mistura compatível mais próxima…"
+
+msgid "Calculating closest supported mix..."
+msgstr "Calculando a mistura compatível mais próxima…"
+
+#, c-format, boost-format
+msgid "%d%% min"
+msgstr "Mín. de %d%%"
+
+msgid "Use a valid hex color like #00FF88."
+msgstr "Use uma cor hexadecimal válida, como #00FF88."
+
+msgid "No supported 2-color, 3-color, or 4-color recipe found."
+msgstr "Nenhuma receita compatível com 2, 3 ou 4 cores foi encontrada."
+
+#, c-format, boost-format
+msgid "Matching %s..."
+msgstr "Buscando correspondência para %s…"
+
+#, c-format, boost-format
+msgid "Requested %s, closest recipe delta: %.2f"
+msgstr "Cor solicitada: %s; diferença da receita mais próxima: %.2f"
+
+msgid ""
+"Unable to create a color mix from the current physical filament colors "
+"within the selected range."
+msgstr "Não foi possível criar uma mistura com as cores dos filamentos físicos atuais dentro da faixa selecionada."
+
+msgid "Synchronize nozzle information"
+msgstr "Sincronizar informações dos bicos"
+
+msgid ""
+"Printer not connected. Please go to the home page or the device page to "
+"connect the printer."
+msgstr "Impressora desconectada. Conecte a impressora pela página inicial ou pela página de dispositivos."
+
+msgid "Note"
+msgstr "Observação"
+
+msgid ""
+"No nozzle information detected. Please go to the printer settings to "
+"configure the nozzle."
+msgstr "Nenhuma informação de bico detectada. Configure os bicos nas definições da impressora."
+
+msgid ""
+"Note: Inconsistent nozzle diameters. Current version does not support mixed "
+"diameter printing. Please select one nozzle for this print."
+msgstr "Observação: os diâmetros dos bicos são diferentes. A versão atual não aceita impressão com diâmetros mistos. Selecione um bico para esta impressão."
+
+msgid "Set Nozzle Diameter"
+msgstr "Definir diâmetro do bico"
+
+msgid "Nozzle settings synchronized successfully"
+msgstr "Configurações dos bicos sincronizadas"
+
+msgid "settings"
+msgstr "Configurações"
+
+msgid "Connect to printer"
+msgstr "Conectar à impressora"
+
+msgid "The machine has been connected and is currently in working mode"
+msgstr "A máquina está conectada e em funcionamento"
+
+msgid "Filament Management"
+msgstr "Gerenciamento de filamentos"
+
+msgid "Color Mixing Match"
+msgstr "Correspondência de mistura de cores"
+
+msgid ""
+"Automatically calculate the color mixing scheme that best matches the "
+"original model colors and complete color mapping.\n"
+"Note:\n"
+"1. Color mixing match is based on the official recommended filaments. The "
+"matched colors may differ from the original model.\n"
+"2. The order of the Color Mapping list may differ from that of the Color "
+"Mixing list."
+msgstr "Calcula automaticamente a mistura de cores mais próxima das cores originais do modelo e conclui o mapeamento.\nObservação:\n1. A correspondência usa os filamentos recomendados oficialmente. As cores resultantes podem diferir das originais.\n2. A ordem da lista de mapeamento pode diferir da ordem da lista de mistura de cores."
+
+msgid "No model detected. Import a multi-color model to continue."
+msgstr "Nenhum modelo detectado. Importe um modelo multicolorido para continuar."
+
+msgid "Got it"
+msgstr "Entendi"
+
+msgid ""
+"Color Mixing Match is unavailable when only one filament is added to "
+"Filament Management."
+msgstr "A correspondência de mistura de cores fica indisponível quando há apenas um filamento no gerenciamento de filamentos."
+
+msgid "Updating the Filaments and Color Mixing list..."
+msgstr "Atualizando as listas de filamentos e de mistura de cores…"
+
+msgid "Sync Filament Information"
+msgstr "Sincronizar informações dos filamentos"
+
+msgid "Mixed Filaments"
+msgstr "Filamentos mistos"
+
+msgid "Add Gradient"
+msgstr "Adicionar gradiente"
+
+msgid "Add Pattern"
+msgstr "Adicionar padrão"
+
+msgid ""
+"Unable to create a color match from the current physical filament colors."
+msgstr "Não foi possível criar uma correspondência com as cores dos filamentos físicos atuais."
+
+msgid "Pellet Configuration"
+msgstr "Configuração de grânulos"
+
+msgid "Gradient Mix Weights"
+msgstr "Pesos da mistura de gradiente"
+
+msgid "Pick a point in the gradient map to control multi-filament mix."
+msgstr "Escolha um ponto no mapa de gradiente para controlar a mistura de filamentos."
+
+msgid "Click to choose a physical filament color"
+msgstr "Clique para escolher a cor de um filamento físico"
+
+msgid ""
+"Manual repeating pattern. Digits 1-9 for filament IDs 1-9. Use [N] for IDs "
+">= 10 (e.g. [12]). Use commas to define per-perimeter groups, e.g. 12,21. "
+"Example: 11112222, 12,21, or 1234."
+msgstr "Padrão de repetição manual. Use os dígitos de 1 a 9 para os filamentos de 1 a 9. Use [N] para identificadores a partir de 10 (por exemplo, [12]). Use vírgulas para definir grupos por perímetro, como 12,21. Exemplos: 11112222, 12,21 ou 1234."
+
+#, c-format, boost-format
+msgid "Append filament %d to pattern"
+msgstr "Acrescentar o filamento %d ao padrão"
+
+msgid ""
+"Positive bias recesses the second filament in the pair; negative bias "
+"recesses the first filament.\n"
+"\n"
+"The color chip shows which filament the current value affects.\n"
+"\n"
+"Grouped wall patterns and Local-Z dithering ignore it."
+msgstr "Valores positivos recuam o segundo filamento do par; valores negativos recuam o primeiro.\n\nA amostra de cor mostra qual filamento é afetado pelo valor atual.\n\nPadrões de paredes agrupadas e pontilhamento Local-Z ignoram esse ajuste."
+
+msgid "Bias"
+msgstr "Desvio"
+
+msgid "Limit Local-Z"
+msgstr "Limitar Local-Z"
+
+msgid ""
+"Store a per-color Local-Z cadence cap. It applies when Local-Z dithering "
+"mode is enabled in print settings."
+msgstr "Armazena um limite de cadência Local-Z por cor. Ele é aplicado quando o modo de pontilhamento Local-Z está ativado nas configurações de impressão."
+
+msgid "Max sublayers"
+msgstr "Máximo de subcamadas"
+
+msgid ""
+"Maximum number of Local-Z sublayers this color may use before its cadence "
+"repeats."
+msgstr "Número máximo de subcamadas Local-Z que esta cor pode usar antes de repetir a cadência."
+
+#, c-format, boost-format
+msgid "%d-color layer cycle"
+msgstr "Ciclo de camadas com %d cores"
+
+#, c-format, boost-format
+msgid "Simple %d%%/%d%%"
+msgstr "Simples: %d%%/%d%%"
+
+#, c-format, boost-format
+msgid "%d%%/%d%%"
+msgstr "%d%%/%d%%"
+
+msgid "None (Selected)"
+msgstr "Nenhum (selecionado)"
+
+msgid "Color Mixing"
+msgstr "Mistura de cores"
+
+msgid ""
+"No mixed filaments yet. Use Add Gradient, Add Pattern, or Add Color to "
+"create one."
+msgstr "Ainda não há filamentos mistos. Use Adicionar gradiente, Adicionar padrão ou Adicionar cor para criar um."
+
+msgid "(Pattern)"
+msgstr "(Padrão)"
+
+msgid "(Color)"
+msgstr "(Cor)"
+
+msgid "Drag to reorder mixed filaments in this panel."
+msgstr "Arraste para reordenar os filamentos mistos neste painel."
+
+msgid "Delete mixed filament"
+msgstr "Excluir filamento misto"
+
+msgid "Click to edit automatic mixed filament settings (saved as custom)."
+msgstr "Clique para editar as configurações automáticas do filamento misto (salvas como personalizadas)."
+
+msgid "Click to expand/retract mixed filament settings"
+msgstr "Clique para expandir ou recolher as configurações do filamento misto"
+
+msgid ""
+"The target mixed filament uses this physical filament as a component. "
+"Merging will remove this physical filament and may invalidate the mixed "
+"filament. Continue?"
+msgstr "O filamento misto de destino usa este filamento físico como componente. A mesclagem removerá o filamento físico e poderá invalidar o filamento misto. Deseja continuar?"
+
+msgid ""
+"This filament is used in the following mixed filament configurations:\n"
+"\n"
+msgstr "Este filamento é usado nas seguintes configurações de filamentos mistos:\n\n"
+
+#, c-format, boost-format
+msgid "• Mixed Filament %d\n"
+msgstr "• Filamento misto %d\n"
+
+msgid ""
+"\n"
+"Merging this filament will invalidate these mixed filament configurations. "
+"Continue?"
+msgstr "\nMesclar este filamento invalidará estas configurações de filamentos mistos. Deseja continuar?"
+
+msgid ""
+"\n"
+"Deleting this filament will invalidate these mixed filament configurations. "
+"Continue?"
+msgstr "\nExcluir este filamento invalidará estas configurações de filamentos mistos. Deseja continuar?"
+
+msgid ""
+"No printer is connected. Please connect your U1 from the Device page before "
+"syncing."
+msgstr "Nenhuma impressora conectada. Conecte sua U1 na página Dispositivo antes de sincronizar."
+
+msgid "Connect Now"
+msgstr "Conectar agora"
+
+msgid "Later"
+msgstr "Mais tarde"
+
+msgid ""
+"The connected printer is not U1. Unable to sync filament information. Please "
+"switch to U1 and try again."
+msgstr "A impressora conectada não é uma U1. Não é possível sincronizar os filamentos. Selecione uma U1 e tente novamente."
+
+msgid ""
+"No filaments detected on the printer. Please preload the filaments before "
+"syncing."
+msgstr "Nenhum filamento detectado na impressora. Faça o pré-carregamento dos filamentos antes de sincronizar."
+
+msgid ""
+"Filament types and colors have been successfully synced from the printer."
+msgstr "Os tipos e as cores dos filamentos foram sincronizados com a impressora."
+
+msgid "Note: Changing this will sync all other nozzles to the same diameter."
+msgstr "Observação: esta alteração ajustará todos os outros bicos para o mesmo diâmetro."
+
+msgid "Don't show this again"
+msgstr "Não mostrar novamente"
+
+msgid "High Flow"
+msgstr "Alto fluxo"
+
+msgid "Left Nozzle"
+msgstr "Bico esquerdo"
+
+msgid "Right Nozzle"
+msgstr "Bico direito"
+
+msgid ""
+"This project was created with an Snapmaker Orca and uses infill rotation "
+"template settings that may not work properly with your current infill "
+"pattern. This could result in weak support or print quality issues."
+msgstr "Este projeto foi criado com o Snapmaker Orca e usa configurações de modelo de rotação do preenchimento que podem não funcionar corretamente com seu padrão atual. Isso pode causar suportes frágeis ou problemas na qualidade de impressão."
+
+msgid ""
+"Printing by object with caution. This function may cause the print head to "
+"collide with printed parts during switching."
+msgstr "Tenha cuidado ao imprimir por objeto. Esta função pode fazer o cabeçote colidir com peças impressas durante as trocas."
+
+msgid "(unknown)"
+msgstr "(desconhecido)"
+
+#, c-format, boost-format
+msgid "Note: Using a %s mm %s nozzle for %s is not recommended."
+msgstr "Observação: não é recomendado usar um bico de %s mm do tipo %s para %s."
+
+msgid ""
+"Note: Filament may not adhere well to the smooth PEI plate on the first "
+"layer. Apply glue before printing."
+msgstr "Observação: o filamento pode ter pouca aderência à placa PEI lisa na primeira camada. Aplique cola antes de imprimir."
+
+msgid ""
+"Note: Filament may stick too strongly to the smooth PEI plate. Apply glue to "
+"protect the plate and ease part removal."
+msgstr "Observação: o filamento pode aderir com força excessiva à placa PEI lisa. Aplique cola para proteger a placa e facilitar a remoção."
+
+msgid ""
+"Note: Low adhesion to the graphic effect plate may cause failure. Use a "
+"different filament instead."
+msgstr "Observação: a baixa aderência à placa de efeito gráfico pode causar falhas. Use outro filamento."
+
+msgid ""
+"Mixed filaments contain incompatible material types. Please correct the "
+"mixed filaments settings before slicing."
+msgstr "Os filamentos mistos contêm tipos de materiais incompatíveis. Corrija suas configurações antes de fatiar."
+
+#, c-format, boost-format
+msgid ""
+"Using %d physical filaments will create %d auto-generated gradients.\n"
+"Do you want to create them now?"
+msgstr "Usar %d filamentos físicos criará %d gradientes automáticos.\nDeseja criá-los agora?"
+
+msgid "Auto gradients"
+msgstr "Gradientes automáticos"
+
+msgid "Cannot enable both Variable Layer Height and Subdivide Mix Layer."
+msgstr "Não é possível ativar simultaneamente a altura de camada variável e a subdivisão das camadas de mistura."
+
+msgid "does not exist."
+msgstr "não existe."
+
+msgid ""
+"Available system memory is critically low during slicing. Continuing may "
+"cause the application to freeze or crash."
+msgstr "A memória disponível no sistema está criticamente baixa durante o fatiamento. Continuar pode fazer o aplicativo travar ou encerrar."
+
+msgid "Do you want to continue slicing?"
+msgstr "Deseja continuar o fatiamento?"
+
+msgid "Select \"Yes\" to attempt slicing, but the software may lag or freeze."
+msgstr "Selecione \"Sim\" para tentar fatiar, mas o programa poderá ficar lento ou travar."
+
+msgid "Select \"No\" to terminate the slicing task immediately."
+msgstr "Selecione \"Não\" para encerrar o fatiamento imediatamente."
+
+msgid "Memory Usage Warning"
+msgstr "Aviso de uso de memória"
+
+msgid "Yes, Continue"
+msgstr "Sim, continuar"
+
+msgid "No, Stop"
+msgstr "Não, parar"
+
+msgid "Confirm slicing"
+msgstr "Confirmar fatiamento"
+
+msgid "Changing the region will log out your account and restart.\n"
+msgstr "Alterar a região encerrará sua sessão e reiniciará o aplicativo.\n"
+
+msgid "Change Region"
+msgstr "Alterar região"
+
+msgid "Switching the region requires application restart.\n"
+msgstr "Alterar a região exige reiniciar o aplicativo.\n"
+
+msgid "Allow high/low temperature filament mixing"
+msgstr "Permitir a mistura de filamentos de alta e baixa temperatura"
+
+msgid ""
+"If enabled, allows printing with both high-temperature and low-temperature "
+"filaments simultaneously."
+msgstr "Permite imprimir simultaneamente com filamentos de alta e baixa temperatura."
+
+msgid ""
+"Mixing materials with significantly different printing temperatures may "
+"result in:\n"
+"· Extruder clogging\n"
+"· Nozzle damage\n"
+"· Layer adhesion issues\n"
+"\n"
+"Do you want to enable this feature?"
+msgstr "Misturar materiais com temperaturas de impressão muito diferentes pode causar:\n· Entupimento da extrusora\n· Danos ao bico\n· Problemas de adesão entre camadas\n\nDeseja ativar esta função?"
+
+msgid "High and Low Temperature Material Mixing Risk"
+msgstr "Riscos da mistura de materiais de alta e baixa temperatura"
+
+msgid "Enable dark mode"
+msgstr "Ativar modo escuro"
+
+msgid "User Experience"
+msgstr "Experiência do usuário"
+
+msgid "Join Customer Experience Improvement Program."
+msgstr "Participar do programa de melhoria da experiência do cliente."
+
+msgid "What data would be collected?"
+msgstr "Quais dados seriam coletados?"
+
+msgid "Machine Filament"
+msgstr "Filamento da máquina"
+
+msgid "Graphic Effect Plate"
+msgstr "Placa de efeito gráfico"
+
+msgid "[Standard flow]"
+msgstr "[Fluxo padrão]"
+
+msgid "[High flow]"
+msgstr "[Alto fluxo]"
+
+msgid ""
+"The current layer height is 0.1 mm or below. Enabling Subdivide Mixing "
+"Layers may cause the subdivided layer height to fall outside the printer's "
+"supported range. This could affect print quality."
+msgstr "A altura de camada atual é de 0,1 mm ou menos. Ativar a subdivisão das camadas de mistura pode deixar a altura subdividida fora da faixa aceita pela impressora e afetar a qualidade de impressão."
+
+msgid "Configuration Conflict"
+msgstr "Conflito de configuração"
+
+msgid ""
+"Subdivide Mixing Layers is enabled. At a layer height of 0.1 mm or below, "
+"the subdivided layer height may fall outside the printer's supported range. "
+"This could affect print quality."
+msgstr "A subdivisão das camadas de mistura está ativada. Com altura de camada de 0,1 mm ou menos, a altura subdividida pode ficar fora da faixa aceita pela impressora e afetar a qualidade de impressão."
+
+msgid "Color Mixing (Experimental)"
+msgstr "Mistura de cores (experimental)"
+
+msgid "Cool Steel Plate"
+msgstr "Placa de aço fria"
+
+msgid ""
+"Bed temperature when this plate is installed. A value of 0 means the "
+"filament does not support printing on this plate."
+msgstr "Temperatura da mesa quando esta placa está instalada. O valor 0 indica que o filamento não aceita impressão nesta placa."
+
+msgid "Smooth PEI Plate"
+msgstr "Placa PEI lisa"
+
+msgid "Keep color"
+msgstr "Manter cor"
+
+msgid "Add this cluster color as a new filament."
+msgstr "Adicionar a cor deste grupo como um novo filamento."
+
+msgid ""
+"Your system is missing H.264 codecs for GStreamer, which are required to "
+"play video.  (Try installing the gstreamer1.0-plugins-bad or gstreamer1.0-"
+"libav packages, then restart Snapmaker Orca?)"
+msgstr "Seu sistema não tem os codecs H.264 do GStreamer necessários para reproduzir vídeos. Instale os pacotes gstreamer1.0-plugins-bad ou gstreamer1.0-libav e reinicie o Snapmaker Orca."
+
+msgid "Log out"
+msgstr "Sair da conta"
+
+msgid "Log in"
+msgstr "Entrar"
+
+msgid "Are you sure you want to log in?"
+msgstr "Tem certeza de que deseja entrar?"
+
+#, c-format, boost-format
+msgid "Flutter resource download failed: %s"
+msgstr "Falha ao baixar os recursos Flutter: %s"
+
+#, c-format, boost-format
+msgid "Profiles resource download failed: %s"
+msgstr "Falha ao baixar os recursos dos perfis: %s"
+
+#, c-format, boost-format
+msgid ""
+"request to server update web resource fail with body:%s,error:%s,status:%d"
+msgstr "Falha ao solicitar atualização dos recursos web ao servidor. Resposta: %s, erro: %s, status: %d"
+
+#, c-format, boost-format
+msgid ""
+"request to server update preset resource fail with body:%s,error:%s,status:%d"
+msgstr "Falha ao solicitar atualização dos perfis ao servidor. Resposta: %s, erro: %s, status: %d"
+
+msgid "needed, but current version is "
+msgstr "é necessária, mas a versão atual é "
+
+msgid "Import Failed"
+msgstr "Falha na importação"
+
+msgid "This web resouce could not be imported due to outdated versions."
+msgstr "Estes recursos web não puderam ser importados porque as versões estão desatualizadas."
+
+msgid "Updating the web resources requires application restart."
+msgstr "Atualizar os recursos web exige reiniciar o aplicativo."
+
+msgid "Snapmaker Orca"
+msgstr "Snapmaker Orca"
+
+msgid "Update web resources"
+msgstr "Atualizar recursos web"
+
+msgid "Please choose a web resource package file:"
+msgstr "Selecione um pacote de recursos web:"
+
+msgid "Please choose a system profile package file:"
+msgstr "Selecione um pacote de perfis do sistema:"
+
+msgid "The following profiles could not be imported due to outdated versions."
+msgstr "Os seguintes perfis não puderam ser importados porque as versões estão desatualizadas."
+
+msgid "Detour and avoid to travel across wall which may cause blob on surface"
+msgstr "Desviar e evitar movimentos que atravessem paredes e possam deixar marcas na superfície"
+
+msgid ""
+"Bed temperature for layers except the initial one. A value of 0 means the "
+"filament does not support printing on this plate."
+msgstr "Temperatura da mesa para as camadas posteriores à primeira. O valor 0 indica que o filamento não aceita impressão nesta placa."
+
+msgid ""
+"Bed temperature of the initial layer. A value of 0 means the filament does "
+"not support printing on this plate."
+msgstr "Temperatura da mesa na primeira camada. O valor 0 indica que o filamento não aceita impressão nesta placa."
+
+msgid ""
+"This option sets the max point for the allowed bed mesh area. Due to the "
+"probe's XY offset, most printers are unable to probe the entire bed. To "
+"ensure the probe point does not go outside the bed area, the minimum and "
+"maximum points of the bed mesh should be set appropriately. Snapmaker_Orca "
+"ensures that adaptive_bed_mesh_min/adaptive_bed_mesh_max values do not "
+"exceed these min/max points. This information can usually be obtained from "
+"your printer manufacturer. The default setting is (99999, 99999), which "
+"means there are no limits, thus allowing probing across the entire bed."
+msgstr "Define o ponto máximo da área permitida para a malha da mesa. Devido ao deslocamento XY da sonda, a maioria das impressoras não consegue sondar toda a mesa. Defina os pontos mínimo e máximo adequadamente para que a sonda não saia da mesa. O Snapmaker_Orca garante que adaptive_bed_mesh_min/adaptive_bed_mesh_max não ultrapassem esses limites. Consulte o fabricante da impressora para obter essas informações. O padrão (99999, 99999) indica ausência de limites e permite sondar toda a mesa."
+
+msgid "Filament multi colors"
+msgstr "Múltiplas cores do filamento"
+
+msgid ""
+"Serialized filament color sequence. Multiple colors are separated by '|'."
+msgstr "Sequência serializada de cores do filamento. As cores são separadas por '|'."
+
+msgid "Filament color display mode"
+msgstr "Modo de exibição das cores do filamento"
+
+msgid ""
+"Filament color display mode: 0 for split colors, 1 for vertical gradient."
+msgstr "Modo de exibição: 0 para cores separadas, 1 para gradiente vertical."
+
+msgid "small thumb"
+msgstr "Miniatura pequena"
+
+msgid "first small thumb"
+msgstr "Primeira miniatura pequena"
+
+msgid "big thumb"
+msgstr "Miniatura grande"
+
+msgid "first big thumb"
+msgstr "Primeira miniatura grande"
+
+msgid "Wait for the temperature when changing tools"
+msgstr "Aguardar a temperatura ao trocar ferramentas"
+
+msgid ""
+"It will use the M109 instead of M104 T[target] after changing tools if this "
+"is set to true"
+msgstr "Usa M109 em vez de M104 T[target] após a troca de ferramenta quando ativado."
+
+msgid "Is high-temperature filament"
+msgstr "Filamento de alta temperatura"
+
+msgid ""
+"Indicates whether this is a high-temperature filament that requires elevated "
+"printing temperatures."
+msgstr "Indica se o filamento exige temperaturas de impressão elevadas."
+
+msgid "Filament volume type"
+msgstr "Tipo de fluxo do filamento"
+
+msgid ""
+"Flow type of each filament (one entry per filament, e.g. standard / "
+"high_flow). The GUI writes its filament-to-flow-type mapping here; flow-"
+"variant array options are read at the index the filament's flow type "
+"resolves to in the corresponding *_flow_support list."
+msgstr "Tipo de fluxo de cada filamento (uma entrada por filamento, como standard / high_flow). A interface salva aqui o mapeamento entre filamentos e tipos de fluxo; as opções das variantes de fluxo são lidas no índice correspondente ao tipo na lista *_flow_support."
+
+msgid "High flow"
+msgstr "Alto fluxo"
+
+msgid "Nozzle volume type"
+msgstr "Tipo de fluxo do bico"
+
+msgid ""
+"Flow type of the nozzle installed on each extruder (one entry per extruder, "
+"e.g. standard / high_flow)."
+msgstr "Tipo de fluxo do bico instalado em cada extrusora (uma entrada por extrusora, como standard / high_flow)."
+
+msgid "Project schema version"
+msgstr "Versão do esquema do projeto"
+
+msgid "Version of the project configuration schema stored in the 3MF project."
+msgstr "Versão do esquema de configuração armazenado no projeto 3MF."
+
+msgid "Filament flow support"
+msgstr "Fluxos aceitos pelo filamento"
+
+msgid ""
+"Flow variants this filament preset provides values for. Multi-valued "
+"filament options are ordered accordingly, the first value belongs to the "
+"standard mode."
+msgstr "Variantes de fluxo para as quais este perfil de filamento fornece valores. As opções com vários valores seguem essa ordem; o primeiro valor corresponde ao modo padrão."
+
+msgid "Process flow support"
+msgstr "Fluxos aceitos pelo processo"
+
+msgid ""
+"Flow variants this process preset provides values for. Multi-valued process "
+"options are ordered accordingly, the first value belongs to the standard "
+"mode."
+msgstr "Variantes de fluxo para as quais este perfil de processo fornece valores. As opções com vários valores seguem essa ordem; o primeiro valor corresponde ao modo padrão."
+
+msgid "Printer flow support"
+msgstr "Fluxos aceitos pela impressora"
+
+msgid ""
+"Flow variants this printer preset provides values for. Multi-valued printer "
+"options are ordered accordingly, the first value belongs to the standard "
+"mode."
+msgstr "Variantes de fluxo para as quais este perfil de impressora fornece valores. As opções com vários valores seguem essa ordem; o primeiro valor corresponde ao modo padrão."
+
+msgid "Filament grouping mode"
+msgstr "Modo de agrupamento dos filamentos"
+
+msgid ""
+"Slicing mode chosen from the slice-button hover popup: standard keeps every "
+"filament on standard flow; custom uses the mapping from the custom filament "
+"grouping dialog."
+msgstr "Modo escolhido no menu do botão de fatiamento: padrão mantém todos os filamentos em fluxo padrão; personalizado usa o mapeamento da janela de agrupamento personalizado."
+
+msgid "Filament flow step size"
+msgstr "Tamanho do segmento de fluxo do filamento"
+
+msgid ""
+"Segment length (number of declared flow variants) of each filament inside "
+"the interleaved filament arrays of a composed config. Filament i owns the "
+"segment starting at the sum of the preceding step sizes. Generated when the "
+"full config is composed, not part of any preset."
+msgstr "Comprimento do segmento (número de variantes de fluxo declaradas) de cada filamento nas listas intercaladas de uma configuração composta. O segmento do filamento i começa na soma dos tamanhos anteriores. Gerado na composição da configuração completa; não faz parte de um perfil."
+
+msgid "Dithering cadence height A"
+msgstr "Altura de cadência do pontilhamento A"
+
+msgid ""
+"Layer height contribution of component A for dithering virtual filaments. "
+"Set to 0 to use normal 1-layer A / 1-layer B alternation.\n"
+"\n"
+"Detailed mixed filament setting explanations will be published once the "
+"project wiki is available."
+msgstr "Contribuição do componente A à altura de camada no pontilhamento de filamentos virtuais. Use 0 para alternar normalmente uma camada A e uma camada B.\n\nExplicações detalhadas das configurações de filamentos mistos serão publicadas quando a wiki do projeto estiver disponível."
+
+msgid "Dithering cadence height B"
+msgstr "Altura de cadência do pontilhamento B"
+
+msgid ""
+"Layer height contribution of component B for dithering virtual filaments. "
+"Set to 0 to use normal 1-layer A / 1-layer B alternation.\n"
+"\n"
+"Detailed mixed filament setting explanations will be published once the "
+"project wiki is available."
+msgstr "Contribuição do componente B à altura de camada no pontilhamento de filamentos virtuais. Use 0 para alternar normalmente uma camada A e uma camada B.\n\nExplicações detalhadas das configurações de filamentos mistos serão publicadas quando a wiki do projeto estiver disponível."
+
+msgid "Height-weighted cadence"
+msgstr "Cadência ponderada por altura"
+
+msgid ""
+"Enable height-weighted cadence for mixed filaments. Limitation: only one "
+"height-weighted mixed color should be present at a given Z plane, because "
+"independent per-color layer heights are not supported and the resulting "
+"layer height applies to the whole plane. When disabled, layer-cycle cadence "
+"is used.\n"
+"\n"
+"Detailed mixed filament setting explanations will be published once the "
+"project wiki is available."
+msgstr "Ativa a cadência ponderada por altura para filamentos mistos. Limitação: apenas uma cor mista ponderada por altura deve existir em cada plano Z, pois alturas independentes por cor não são aceitas e a altura resultante se aplica ao plano inteiro. Quando desativado, usa a cadência por ciclo de camadas.\n\nExplicações detalhadas serão publicadas quando a wiki do projeto estiver disponível."
+
+msgid "Local-Z lower height bound"
+msgstr "Limite inferior de altura Local-Z"
+
+msgid ""
+"Lower bound used when Local-Z mixed-filament dithering chooses per-color "
+"sublayer heights.\n"
+"\n"
+"Smaller values let Local-Z use thinner sublayers for a color when needed.\n"
+"\n"
+"Detailed mixed filament setting explanations will be published once the "
+"project wiki is available."
+msgstr "Limite inferior usado na escolha das alturas das subcamadas por cor no pontilhamento Local-Z.\n\nValores menores permitem subcamadas mais finas quando necessário.\n\nExplicações detalhadas serão publicadas quando a wiki do projeto estiver disponível."
+
+msgid "Local-Z upper height bound"
+msgstr "Limite superior de altura Local-Z"
+
+msgid ""
+"Upper bound used when Local-Z mixed-filament dithering chooses per-color "
+"sublayer heights.\n"
+"\n"
+"Larger values let Local-Z use thicker sublayers for a color when needed.\n"
+"\n"
+"Detailed mixed filament setting explanations will be published once the "
+"project wiki is available."
+msgstr "Limite superior usado na escolha das alturas das subcamadas por cor no pontilhamento Local-Z.\n\nValores maiores permitem subcamadas mais espessas quando necessário.\n\nExplicações detalhadas serão publicadas quando a wiki do projeto estiver disponível."
+
+msgid "Advanced dithering"
+msgstr "Pontilhamento avançado"
+
+msgid ""
+"Distribute mixed filament layer-cycle cadence using an advanced ordered "
+"dithering pattern instead of a simple contiguous A-then-B run. This can "
+"reduce visible striping for some hues.\n"
+"\n"
+"This is an even more experimental mode and the perceived color may differ "
+"from normal dithering for the same filament pair and ratio.\n"
+"\n"
+"Detailed mixed filament setting explanations will be published once the "
+"project wiki is available."
+msgstr "Distribui a cadência dos filamentos mistos com um padrão de pontilhamento ordenado avançado, em vez de uma sequência simples de A seguida de B. Isso pode reduzir faixas visíveis em alguns tons.\n\nEste modo é ainda mais experimental, e a cor percebida pode diferir do pontilhamento normal com o mesmo par de filamentos e a mesma proporção.\n\nExplicações detalhadas serão publicadas quando a wiki do projeto estiver disponível."
+
+msgid "Pointillisme pixel size"
+msgstr "Tamanho do ponto de pontilhismo"
+
+msgid ""
+"Length of one pointillisme segment along an extrusion path for same-layer "
+"pointillisme mode. Set to 0 to use automatic nozzle-based sizing.\n"
+"\n"
+"Warning: Same-layer pointillisme is extremely experimental and may produce "
+"unusable results."
+msgstr "Comprimento de um segmento de pontilhismo ao longo do caminho de extrusão no modo de mesma camada. Use 0 para calcular automaticamente pelo tamanho do bico.\n\nAviso: o pontilhismo na mesma camada é extremamente experimental e pode produzir resultados inutilizáveis."
+
+msgid "Pointillisme line gap"
+msgstr "Espaçamento do pontilhismo"
+
+msgid ""
+"Optional non-extruded spacing between adjacent pointillisme segments. "
+"Increase carefully to improve separation and print quality.\n"
+"\n"
+"Warning: Same-layer pointillisme is extremely experimental and may produce "
+"unusable results."
+msgstr "Espaço opcional sem extrusão entre segmentos adjacentes de pontilhismo. Aumente com cuidado para melhorar a separação e a qualidade de impressão.\n\nAviso: o pontilhismo na mesma camada é extremamente experimental e pode produzir resultados inutilizáveis."
+
+msgid "Enable mixed filament bias"
+msgstr "Ativar desvio de filamento misto"
+
+msgid ""
+"Show and apply the per-row mixed filament Bias control.\n"
+"\n"
+"When enabled, the selected filament in a mixed pair is recessed slightly so "
+"the other component becomes more visible.\n"
+"\n"
+"Bias is ignored for grouped wall patterns, same-layer pointillisme, and "
+"Local Z dithering."
+msgstr "Mostra e aplica o controle de desvio por linha dos filamentos mistos.\n\nQuando ativado, o filamento selecionado do par é ligeiramente recuado para tornar o outro componente mais visível.\n\nO desvio é ignorado em padrões de paredes agrupadas, pontilhismo na mesma camada e pontilhamento Local-Z."
+
+msgid "Selective Expansion contraction"
+msgstr "Contração da expansão seletiva"
+
+msgid ""
+"XY offset applied to mixed-filament painted regions before region "
+"assignment.\n"
+"\n"
+"Positive values contract the mixed zone inward. Negative values expand it "
+"outward.\n"
+"\n"
+"This applies to mixed filament usage in layer cadence, height cadence, same-"
+"layer pointillisme, and local Z dithering."
+msgstr "Deslocamento XY aplicado às regiões pintadas com filamentos mistos antes da atribuição das regiões.\n\nValores positivos contraem a região mista. Valores negativos a expandem.\n\nAplica-se à cadência por camada, cadência por altura, pontilhismo na mesma camada e pontilhamento Local-Z."
+
+msgid "Collapse same-color mixed regions"
+msgstr "Unificar regiões mistas da mesma cor"
+
+msgid ""
+"Merge ordinary mixed-filament painted regions into a single area when they "
+"resolve to the same physical filament on a layer.\n"
+"\n"
+"This improves continuity for adjacent same-color areas.\n"
+"\n"
+"Subdivide Mix Layer disables this behavior, and gradient mixed regions also "
+"bypass it because they use the Local-Z pipeline."
+msgstr "Mescla regiões pintadas comuns de filamentos mistos em uma única área quando usam o mesmo filamento físico na camada.\n\nIsso melhora a continuidade das áreas adjacentes da mesma cor.\n\nA subdivisão da camada de mistura desativa este comportamento. Regiões mistas de gradiente também o ignoram porque usam o processamento Local-Z."
+
+msgid "Mixed filament custom definitions"
+msgstr "Definições personalizadas de filamentos mistos"
+
+msgid ""
+"Serialized custom mixed filament rows.\n"
+"\n"
+"Detailed mixed filament setting explanations will be published once the "
+"project wiki is available."
+msgstr "Linhas serializadas de filamentos mistos personalizados.\n\nExplicações detalhadas das configurações serão publicadas quando a wiki do projeto estiver disponível."
+
+msgid "Dithering Z step size"
+msgstr "Passo Z do pontilhamento"
+
+msgid ""
+"Layer height used in Z zones painted with dithering (mixed virtual "
+"filaments). Set to 0 to keep normal layer height in those zones.\n"
+"\n"
+"Detailed mixed filament setting explanations will be published once the "
+"project wiki is available."
+msgstr "Altura de camada usada nas regiões Z pintadas com pontilhamento (filamentos virtuais mistos). Use 0 para manter a altura normal nessas regiões.\n\nExplicações detalhadas serão publicadas quando a wiki do projeto estiver disponível."
+
+msgid "Subdivide Mix Layer"
+msgstr "Subdividir camada de mistura"
+
+msgid "Material"
+msgstr "Material"
+
+msgid ""
+"Enable \"Subdivide Mix Layer\" for mixing areas. Layer height will be "
+"subdivided for better color mixing results."
+msgstr "Ativa a subdivisão nas áreas de mistura. A altura de camada será subdividida para melhorar a mistura de cores."
+
+msgid "Full domain"
+msgstr "Domínio completo"
+
+msgid ""
+"Experimental. Apply Local-Z thinning across whole mixed-color regions "
+"instead of limiting the effect strictly to painted mixed masks.\n"
+"\n"
+"Only available when Subdivide Mix Layer is enabled."
+msgstr "Experimental. Aplica o afinamento Local-Z em toda a região de cores mistas, em vez de limitar o efeito às máscaras pintadas.\n\nDisponível apenas com a subdivisão da camada de mistura ativada."
+
+msgid "Apply subdivision to infill"
+msgstr "Aplicar subdivisão ao preenchimento"
+
+msgid ""
+"Experimental. When Subdivide Mix Layer is enabled, also apply the same "
+"subdivision to infill inside mixed-color areas.\n"
+"\n"
+"This is enabled automatically with Subdivide Mix Layer. Turn it off to keep "
+"infill on the normal layer height.\n"
+"\n"
+"It can improve internal color mixing, but may add toolchanges and affect "
+"infill behavior."
+msgstr "Experimental. Com a subdivisão da camada de mistura ativada, aplica a mesma subdivisão ao preenchimento dentro das áreas de cores mistas.\n\nÉ ativado automaticamente com a subdivisão. Desative para manter o preenchimento na altura normal.\n\nPode melhorar a mistura interna, mas acrescentar trocas de ferramenta e alterar o preenchimento."
+
+msgid "Use direct multicolor Local-Z solver"
+msgstr "Usar cálculo Local-Z multicolorido direto"
+
+msgid ""
+"Experimental. For mixed rows with 3 or more physical filaments, allocate "
+"Local-Z sublayers directly across all components with carry-over error "
+"between layers instead of collapsing them into pair cadence.\n"
+"\n"
+"This can reduce visible banding in multicolor Local-Z blends at the cost of "
+"more toolchanges. It is ignored when explicit Local-Z A/B heights are set."
+msgstr "Experimental. Para linhas mistas com 3 ou mais filamentos físicos, distribui as subcamadas Local-Z diretamente entre todos os componentes, transferindo o erro entre camadas em vez de reduzi-los a uma cadência de pares.\n\nPode reduzir faixas visíveis em misturas multicoloridas Local-Z, mas aumenta as trocas de ferramenta. É ignorado quando as alturas A/B de Local-Z são definidas explicitamente."
+
+msgid "Use step size in painted zones only"
+msgstr "Usar o passo apenas nas regiões pintadas"
+
+msgid ""
+"When enabled, dithering Z step size is applied only where mixed filament is "
+"painted. Unpainted zones keep their original layer height.\n"
+"\n"
+"Detailed mixed filament setting explanations will be published once the "
+"project wiki is available."
+msgstr "Quando ativado, o passo Z de pontilhamento é aplicado apenas onde há filamento misto pintado. Regiões não pintadas mantêm a altura original.\n\nExplicações detalhadas serão publicadas quando a wiki do projeto estiver disponível."
+
+msgid "Retraction Length (Toolchange)"
+msgstr "Comprimento de retração (troca de ferramenta)"
+
+msgid "Z hop when moving to tower"
+msgstr "Elevação Z ao mover para a torre"
+
+msgid "Preheat delta temperature"
+msgstr "Diferença de temperatura do pré-aquecimento"
+
+msgid ""
+"Allow user to set the Preheat temperature. If target temperature is 220 and "
+"Preheat delta temperature is -30, then the preheat temperature will be 190"
+msgstr "Define a temperatura de pré-aquecimento. Se a temperatura de destino for 220 e a diferença de pré-aquecimento for -30, o pré-aquecimento será a 190."
+
+msgid "Ramming line width ratio"
+msgstr "Proporção da largura de linha na purga por compressão"
+
+msgid ""
+"This is used to decide the line width of wipe tower when ramming, ramming "
+"line width = [this ratio] * extruder * 1.25"
+msgstr "Define a largura de linha da torre de limpeza na purga por compressão: largura = [esta proporção] * extrusora * 1,25."
+
+msgid "Enable change pressure advance when wiping"
+msgstr "Permitir alterar o avanço de pressão durante a limpeza"
+
+msgid "If it's set to false, the pressure advance value will not be changed."
+msgstr "Quando desativado, o valor de avanço de pressão não será alterado."
+
+msgid "Pressure advance value when ramming"
+msgstr "Avanço de pressão durante a purga por compressão"
+
+msgid "Set_Pressure_advance [this value] when ramming on wipe tower"
+msgstr "Usa Set_Pressure_advance [este valor] durante a purga por compressão na torre de limpeza."
+
+msgid "Brim chamfer"
+msgstr "Chanfro da borda"
+
+msgid ""
+"Enable gradual layer-by-layer reduction of the brim around the prime tower. "
+"This creates a chamfered/tapered effect, reducing material usage while "
+"maintaining first layer adhesion."
+msgstr "Ativa a redução gradual da borda da torre de purga, camada por camada. Isso cria um chanfro ou afunilamento, reduzindo o consumo de material e mantendo a adesão da primeira camada."
+
+msgid "Max chamfer width"
+msgstr "Largura máxima do chanfro"
+
+msgid ""
+"Maximum width of the chamfer zone measured from the tower perimeter. The "
+"brim will reduce within this distance. Larger values create a more gradual "
+"taper but take more layers to complete."
+msgstr "Largura máxima do chanfro a partir do perímetro da torre. A borda será reduzida dentro dessa distância. Valores maiores criam uma redução mais gradual, mas exigem mais camadas."
+
+msgid "Maximum wipe tower print speed of out wall"
+msgstr "Velocidade máxima da parede externa da torre de limpeza"
+
+msgid "Maximum wipe tower print speed of out wall."
+msgstr "Velocidade máxima de impressão da parede externa da torre de limpeza."
+
+msgid "Wall gap"
+msgstr "Abertura na parede"
+
+msgid ""
+"Create small gaps in the wipe tower outer wall at tool change entry points. "
+"The first extrusion path after a filament change will enter through the gap, "
+"leaving the filament blob on the gap edge instead of on the outer wall "
+"surface."
+msgstr "Cria pequenas aberturas na parede externa da torre de limpeza nos pontos de entrada das trocas. O primeiro caminho de extrusão após a troca entra pela abertura, deixando a gota de filamento na borda da abertura em vez de na superfície externa."
+
+msgid "Local-Z mini wipe lines"
+msgstr "Minilinhas de limpeza Local-Z"
+
+msgid ""
+"Number of purge lines reserved for each runtime Local-Z wipe tower "
+"toolchange. Higher values improve cleanup but increase tower depth. Only "
+"used when Local-Z dithering and the prime tower are enabled."
+msgstr "Número de linhas de purga reservadas para cada troca de ferramenta Local-Z na torre. Valores maiores melhoram a limpeza, mas aumentam a profundidade da torre. Usado apenas com o pontilhamento Local-Z e a torre de purga ativados."
+
+msgid "lines"
+msgstr "linhas"
+
+msgid "Tower ironing area"
+msgstr "Área de alisamento da torre"
+
+msgid ""
+"Ironing area for prime tower interface layer (where different materials "
+"meet)."
+msgstr "Área de alisamento da camada de interface da torre de purga, onde diferentes materiais se encontram."
+
+msgid "mm²"
+msgstr "mm²"
+
+msgid ""
+"Detected both high and low temperature materials. Mixed printing may result "
+"in extruder clogging, nozzle damage, or layer adhesion issues."
+msgstr "Foram detectados materiais de alta e baixa temperatura. A impressão mista pode entupir a extrusora, danificar o bico ou causar problemas de adesão entre camadas."
+
+msgid ""
+"Please do not include the special characters #, *, ;, \\, /, :, \", <, >, or "
+"| in filenames."
+msgstr "Não use os caracteres especiais #, *, ;, \\\\, /, :, \", <, > ou | nos nomes dos arquivos."
+
+#, c-format, boost-format
+msgid ""
+"The filename '%s' contains special characters (#, *, ;, \\, /, :, \", <, >, "
+"or |) which may cause issues.Do you wish to continue?"
+msgstr "O nome '%s' contém caracteres especiais (#, *, ;, \\\\, /, :, \", <, > ou |) que podem causar problemas. Deseja continuar?"
+
+msgid "Clear Log"
+msgstr "Limpar registro"
+
+msgid "Test Snapmaker Orca(GitHub)"
+msgstr "Testar Snapmaker Orca (GitHub)"
+
+msgid "Test Snapmaker Orca(GitHub):"
+msgstr "Testar Snapmaker Orca (GitHub):"
+
+msgid "Test LAN Device"
+msgstr "Testar dispositivo de rede local"
+
+msgid "Test LAN Device:"
+msgstr "Testar dispositivo de rede local:"
+
+msgid "Test Cloud Server"
+msgstr "Testar servidor da nuvem"
+
+msgid "Test Cloud Server:"
+msgstr "Testar servidor da nuvem:"
+
+msgid "Test Login API"
+msgstr "Testar API de acesso"
+
+msgid "Test Login API:"
+msgstr "Testar API de acesso:"
+
+msgid "Test Upload API"
+msgstr "Testar API de envio"
+
+msgid "Test Upload API:"
+msgstr "Testar API de envio:"
+
+msgid "Network test started"
+msgstr "Teste de rede iniciado"
+
+msgid ""
+"Please enter the LAN device IP address for testing (leave empty to skip):"
+msgstr "Digite o endereço IP do dispositivo de rede local para testar (deixe vazio para pular):"
+
+msgid "LAN Device Test - Sequence Mode"
+msgstr "Teste de dispositivo local — modo sequencial"
+
+msgid "Please enter the device IP address:"
+msgstr "Digite o endereço IP do dispositivo:"
+
+msgid "LAN Device Test"
+msgstr "Teste de dispositivo local"
+
+msgid "Connection to Moonraker works correctly."
+msgstr "A conexão com o Moonraker está funcionando."
+
+msgid "Could not connect to Moonraker"
+msgstr "Não foi possível conectar ao Moonraker"
+
+msgid "Note: Moonraker version at least 1.1.0 is required."
+msgstr "Observação: é necessário o Moonraker 1.1.0 ou mais recente."
+
+msgid "TD"
+msgstr "TD"
+
+msgid ""
+"Filament color limit reached (64 colors). Colors over the limit have been "
+"removed."
+msgstr "Limite de cores de filamento atingido (64 cores). As cores excedentes foram removidas."
+
+msgid "Match Mode"
+msgstr "Modo de correspondência"
+
+msgid "Start Matching"
+msgstr "Iniciar correspondência"
+
+msgid "Rematch"
+msgstr "Refazer correspondência"
+
+msgid "Filament Setup"
+msgstr "Configuração de filamentos"
+
+msgid "Remove filament"
+msgstr "Remover filamento"
+
+msgid "Add filament"
+msgstr "Adicionar filamento"
+
+msgid "Original"
+msgstr "Original"
+
+msgid "Matched"
+msgstr "Correspondente"
+
+msgid "Isometric"
+msgstr "Isométrica"
+
+msgid "Top-Front"
+msgstr "Superior frontal"
+
+msgid "Color Mapping"
+msgstr "Mapeamento de cores"
+
+msgid "Stop Matching"
+msgstr "Parar correspondência"
+
+msgid ""
+"Are you sure you want to discard this match? The current configuration will "
+"not be saved."
+msgstr "Deseja descartar esta correspondência? A configuração atual não será salva."
+
+msgid "Discard Matching"
+msgstr "Descartar correspondência"
+
+msgid ""
+"Official Full Spectrum filaments are not configured. Configured filaments "
+"will be used instead. Once the official filaments are added, the previously "
+"selected filaments can be replaced in the filament list without affecting "
+"the color mixing match result."
+msgstr "Os filamentos oficiais Full Spectrum não estão configurados. Serão usados os filamentos configurados. Após adicionar os oficiais, você poderá substituir os filamentos selecionados na lista sem alterar o resultado da correspondência de mistura de cores."
+
+msgid "Manually select filaments from the current list for color mixing."
+msgstr "Selecione manualmente os filamentos da lista atual para misturar cores."
+
+msgid ""
+"Automatically select an official filament set for color mixing match. Mix "
+"ratio for each color: 0%–70%."
+msgstr "Seleciona automaticamente um conjunto de filamentos oficiais para a correspondência de mistura. Proporção de cada cor: 0%–70%."
+
+#, c-format, boost-format
+msgid ""
+"The mix ratios for %s in the Color Mapping list are outside the recommended "
+"%d%%–%d%% range. Adjust the mix ratios manually for better results."
+msgstr "As proporções de %s na lista de mapeamento de cores estão fora da faixa recomendada de %d%%–%d%%. Ajuste-as manualmente para obter melhores resultados."
+
+msgid ""
+"Color mapping list limit reached (max 64 colors). Excess colors will be "
+"removed."
+msgstr "Limite da lista de mapeamento atingido (máximo de 64 cores). As cores excedentes serão removidas."
+
+msgid ""
+"Automatic color mixing matching is not supported for the current nozzle "
+"diameter. Please use manual matching or replace with a smaller-size nozzle."
+msgstr "O diâmetro atual do bico não aceita correspondência automática de mistura de cores. Use a correspondência manual ou instale um bico menor."
+
+msgid "Good"
+msgstr "Boa"
+
+msgid "Fair"
+msgstr "Razoável"
+
+msgid "Poor"
+msgstr "Ruim"
+
+#, c-format, boost-format
+msgid "Color Difference: %s (ΔE=%.1f)"
+msgstr "Diferença de cor: %s (ΔE=%.1f)"

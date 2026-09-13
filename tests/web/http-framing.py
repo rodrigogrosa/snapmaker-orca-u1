@@ -34,5 +34,5 @@ for split in splits:
     assert headers.startswith(b'HTTP/1.1 200 '), (split, headers)
     length = next(int(line.split(b':', 1)[1]) for line in headers.split(b'\r\n') if line.lower().startswith(b'content-length:'))
     assert len(body) == length, (split, len(body), length)
-    assert b'u1-model-library' in body, split
+    assert b'window.u1LibraryResponse' in body, split
 print(f'PASS: complete request and {len(splits) - 1} split CRLF boundaries on port {port}.')

@@ -470,6 +470,7 @@ set(SLIC3R_GUI_SOURCES
     GUI/WebUserLoginDialog.cpp
     GUI/WebUserLoginDialog.hpp
     GUI/WebViewDialog.cpp
+    GUI/ModelLibrary.cpp
     GUI/WebViewDialog.hpp
     GUI/Widgets/AMSControl.cpp
     GUI/Widgets/AMSControl.hpp

@@ -935,7 +935,7 @@ std::string HttpServer::map_url_to_file_path(const std::string& url)
     }
 
     if (trimmed_url == "/") {
-        trimmed_url = "/flutter_web/index.html"; // defualt home page
+        trimmed_url = "/web/model-library/index.html"; // U1 Lab home
     }
     else if (trimmed_url.substr(0, 11) == "/localfile/") {
         auto real_path = trimmed_url.substr(11);
@@ -975,7 +975,10 @@ std::string HttpServer::map_url_to_file_path(const std::string& url)
     }
 
     wxString res = "";
-    if (trimmed_url.find("flutter_web") == std::string::npos) 
+    // U1 Lab ships an audited entry point, runtime and translation together.
+    // A downloaded upstream cache must not replace only part of that set.
+    const bool bundled_u1_ui = boost::filesystem::exists(boost::filesystem::path(resources_dir()) / "web/flutter_web/locale-pt-br.js");
+    if (bundled_u1_ui || trimmed_url.find("flutter_web") == std::string::npos)
     {
        res = wxString::FromUTF8(resources_dir()) + trimmed_url;
     }
