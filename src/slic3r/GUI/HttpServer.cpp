@@ -305,7 +305,9 @@ void session::read_first_line()
 {
     auto self(shared_from_this());
 
-    async_read_until(socket, buff, '\r', [this, self](const boost::beast::error_code& e, std::size_t s) {
+    // Wait for the complete CRLF: a trailing LF from a split packet must not
+    // become the next header, hiding the empty line that terminates the request.
+    async_read_until(socket, buff, "\r\n", [this, self](const boost::beast::error_code& e, std::size_t s) {
         if (!e) {
             std::string  line, ignore;
             std::istream stream{&buff};
@@ -348,7 +350,7 @@ void session::read_next_line()
         return; // 提前返回，避免后续逻辑
     }
 
-    async_read_until(socket, buff, '\r', [this, self](const boost::beast::error_code& e, std::size_t s) {
+    async_read_until(socket, buff, "\r\n", [this, self](const boost::beast::error_code& e, std::size_t s) {
         if (!e) {
             std::string  line, ignore;
             std::istream stream{&buff};

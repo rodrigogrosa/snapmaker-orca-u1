@@ -65,3 +65,14 @@ Validação manual já realizada no pacote com runtime 2.3.6: biblioteca aberta 
 - `tests/web/model-library.cjs`: verificação dos fluxos da biblioteca.
 
 O componente usa Shadow DOM para separar seus estilos da interface Flutter. Os resultados de busca são abertos no navegador por meio do comando existente `common_openurl`. O código não altera o fatiamento nem o envio à impressora.
+
+## Resultado da compilação completa — 2026-09-13
+
+- Dependências e aplicativo compilados localmente para arm64, com Command Line Tools, Ninja e CMake 3.31.10. O runtime informa versão 2.4.0; a base é a branch de desenvolvimento upstream, não uma release estável própria.
+- `U1 Lab Native.app` usa uma identidade distinta da prévia 2.3.6 e um perfil de teste separado.
+- Corrigido um travamento do servidor HTTP local: a leitura esperava apenas CR, podendo deixar LF isolado quando os pacotes se dividiam. A linha que encerra os cabeçalhos deixava de ser reconhecida e o WebView permanecia em branco. Agora o leitor espera CRLF completo nas duas etapas.
+- O teste de regressão reproduziu timeout antes da correção e passou depois: requisição inteira e quatro pontos de divisão CR/LF. Com o aplicativo aberto, executar `U1_HTTP_PORT=<porta-local-do-app> python3 tests/web/http-framing.py`.
+- A compilação corrigida abriu a página inicial e a biblioteca; uma pesquisa da U1 abriu o Printables no navegador.
+- Leitura de STL via `--info` concluída com código 0: cubo de 20 × 20 × 20 mm, 12 faces, malha fechada, volume aproximado de 8.000 mm³. O programa também registrou a mensagem de exclusão de mesa sem perfil nesse teste; isso não valida configuração de impressão.
+- Não foi realizada impressão física. Confirmar o diâmetro do bico e os filamentos no perfil antes de fatiar projetos reais; a configuração inicial upstream pode selecionar bico de 0,2 mm.
+- Este é um pacote local. A compilação encontrou o zstd do Homebrew deste Mac; portabilidade para outros Macs e notarização não foram validadas.

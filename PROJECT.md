@@ -11,7 +11,7 @@ Evoluir o Snapmaker Orca para facilitar a descoberta, organização e importaç�
 - Base inicial: `56e82d53c85457f530827d2488664015b2eae08e` (`main`).
 - Licença: AGPL-3.0, conforme `LICENSE.txt`; preservar atribuições e avisos existentes.
 - Código original copiado com histórico Git. A primeira evolução da biblioteca está descrita em `U1-LAB.md`.
-- Ferramentas locais preparadas; dependências nativas compiladas com Ninja e CMake 3.31.10. Prévia de interface com runtime 2.3.6 validada no Mac. A compilação do programa principal é uma verificação separada, registrada em `U1-LAB.md` quando concluída.
+- Ferramentas locais preparadas; dependências nativas compiladas com Ninja e CMake 3.31.10. Prévia de interface com runtime 2.3.6 validada no Mac. O programa principal também foi compilado e validado na abertura da biblioteca e leitura de STL, após corrigir a leitura HTTP de requisições fragmentadas. Resultados e limites em `U1-LAB.md`.
 
 ## Primeira evolução
 
