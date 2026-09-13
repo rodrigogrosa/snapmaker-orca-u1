@@ -161,12 +161,13 @@ bool WebViewPanel::HandleLibraryMessage(const wxString& message)
                 throw std::runtime_error("Conecte seu aplicativo Thingiverse para consultar o catálogo.");
             if (command == "u1_search") {
                 const auto query = input.value("query", "");
-                if (query.empty() || query.size() > 600)
+                if (query.size() > 600)
                     throw std::runtime_error("Digite uma busca de até 200 caracteres.");
                 int page = input.value("page", 1);
                 if (page < 1 || page > 1000)
                     throw std::runtime_error("Página inválida.");
-                url = "https://api.thingiverse.com/search/" + Http::url_encode(query) + "/?type=things&page=" + std::to_string(page);
+                url = "https://api.thingiverse.com/search" + (query.empty() ? std::string() : "/" + Http::url_encode(query)) +
+                      "/?type=things&page=" + std::to_string(page);
                 const auto                         filters = input.value("filters", LibraryJson::object());
                 static const std::set<std::string> allowed = {"per_page",        "sort",
                                                               "posted_before",   "posted_after",

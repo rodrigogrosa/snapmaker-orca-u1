@@ -8,6 +8,7 @@
   const pending = new Map();
   let serial = 0, generation = 0, provider = 'snapmaker', view = 'catalog', page = 1;
   let catalog = [], filtered = [], favorites = [], connected = false, total = 0, previousView = 'catalog';
+  let lastThingiverseQuery = null;
   let storageOK = false, busy = false, catalogComplete = false, catalogRun = null;
   const format = n => Number(n).toLocaleString('pt-BR');
   function native(command, data = {}) {
@@ -96,11 +97,12 @@
       $('#scope').textContent='Busca e filtros sobre o catálogo Snapmaker carregado. Títulos e descrições dos criadores são preservados no idioma original.';
     } else if(provider==='thingiverse') {
       field(normal,'Ordenar por','sort',[['relevant','Relevância'],['text','Correspondência do texto'],['popular','Popularidade'],['makes','Impressões da comunidade'],['newest','Mais recentes']]);
-      field(normal,'Resultados por página','per_page',[['20','20'],['10','10'],['30','30']]);
+      if(!$('#query').value.trim())normal.querySelector('[name=sort]').value='newest';
+      field(normal,'Resultados por página','per_page',[['100','100'],['50','50'],['20','20']]);
       for(const [name,label] of [['posted_after','Publicado após'],['posted_before','Publicado antes']])field(advanced,label,name,null,'date');
       for(const [name,label] of [['license','Código da licença'],['category_id','Identificador da categoria'],['subjects','Disciplinas (identificadores)'],['grades','Séries escolares (identificadores)'],['standards','Normas educacionais (identificadores)'],['liked_by','Curtido pelo usuário (identificador)'],['made_by','Impresso pelo usuário (identificador)']])field(advanced,label,name);
       for(const [name,label] of [['is_edu_approved','Aprovado para educação'],['customizable','Personalizável'],['show_customized','Incluir personalizações'],['has_makes','Com impressões da comunidade'],['is_featured','Em destaque'],['is_derivative','Remix'],['is_fis_challenge_winnereatured','Vencedor de desafio (experimental)']])field(advanced,label,name,[['','Padrão da plataforma'],['1','Sim'],['0','Não']]);
-      $('#scope').textContent='Busca no Thingiverse. Em Relevância, títulos com todas as palavras pesquisadas aparecem primeiro em cada página. Mais recentes prioriza a data e pode trazer correspondências na descrição. Filtro por cor ou quantidade de cores não está disponível neste catálogo.';
+      $('#scope').textContent='Sem texto, explore os modelos mais recentes ou escolha Popularidade. Novas buscas começam em Relevância. Em Relevância, títulos com todas as palavras pesquisadas aparecem primeiro em cada página. Mais recentes prioriza a data e pode trazer correspondências na descrição. Filtro por cor ou quantidade de cores não está disponível neste catálogo.';
     } else $('#scope').textContent='Esta plataforma ainda não está conectada. Consulte Integrações para ver o motivo.';
     for(const input of normal.querySelectorAll('[name]'))if(preserved[input.name] !== undefined && [...input.options].some(o=>o.value===preserved[input.name]))input.value=preserved[input.name];
   }
@@ -118,7 +120,7 @@
       filtered.sort((a,b)=>f.sort==='name'?a.name.localeCompare(b.name,'pt-BR'):f.sort==='oldest'?a.date-b.date:b.date-a.date);
       total=filtered.length;
     }
-    const size=provider==='snapmaker'?24:Number(values().per_page || 20);
+    const size=provider==='snapmaker'?24:Number(values().per_page || 100);
     const pages=Math.max(1,Math.ceil(total/size));page=Math.min(page,pages);
     cards($('#results'),provider==='snapmaker'?filtered.slice((page-1)*size,page*size):filtered);
     const unavailable=provider!=='snapmaker' && (provider!=='thingiverse' || !connected);
@@ -159,7 +161,8 @@
         }
         catalogComplete=true;filters();
       } else {
-        const response=await request('u1_search',{provider,query:$('#query').value.trim(),page,filters:values()});if(run!==generation)return;
+        const query=$('#query').value.trim();lastThingiverseQuery=query;
+        const response=await request('u1_search',{provider,query,page,filters:values()});if(run!==generation)return;
         if(!Array.isArray(response.hits))throw new Error('O formato do catálogo Thingiverse mudou.');
         filtered=response.hits.map(x=>model(x,'thingiverse'));total=Number(response.total || 0);
         if(values().sort==='relevant') {
@@ -205,7 +208,7 @@
   $('#provider').addEventListener('change',()=>{++generation;busy=false;provider=$('#provider').value;filtered=[];total=0;page=1;filters(false);search();});
   $('#resolve-connection').addEventListener('click',()=>{++generation;busy=false;show('connections');});
   $('#use-snapmaker').addEventListener('click',()=>{++generation;busy=false;provider='snapmaker';$('#provider').value=provider;filters(false);search();});
-  $('#search').addEventListener('submit',e=>{e.preventDefault();search();});
+  $('#search').addEventListener('submit',e=>{e.preventDefault();if(provider==='thingiverse' && $('#query').value.trim()!==lastThingiverseQuery)$('#provider-filters [name=sort]').value=$('#query').value.trim()?'relevant':'newest';search();});
   $('#provider-filters').addEventListener('change',()=>search());
   $('#refresh').addEventListener('click',()=>{catalog=[];catalogComplete=false;search();});
   $('#previous').addEventListener('click',()=>{page--;provider==='snapmaker'?render():search(false);});

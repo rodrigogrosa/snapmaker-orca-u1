@@ -78,3 +78,7 @@ Ao trocar de plataforma, a ordenação passa a usar o padrão do catálogo de de
 O serviço do cofre `com.rodrigogrosa.u1lab.thingiverse` é fixo, independente da versão, pasta do aplicativo e perfil de laboratório. No macOS, wxSecretStore usa o Acesso às Chaves. O empacotamento não remove nem sobrescreve esse item. O sistema pode solicitar autorização de acesso após trocar o executável de uma versão local assinada ad hoc; isso não significa que a chave foi apagada. Falha ao salvar é exibida e não é anunciada como conexão salva. A versão anterior não persistia a chave: é necessário inseri-la uma vez nesta versão.
 
 Validação: compilação nativa macOS, testes da biblioteca e teste `tests/model-library/secret-store.cpp` usando um valor sintético e serviço separado, com gravação/leitura em processos distintos e remoção confirmada. Nenhuma credencial real entra em testes, arquivos do projeto ou logs.
+
+### Catálogo inicial e páginas de 100 modelos
+
+O Thingiverse abre com `sort=newest` quando não há texto, usando o endpoint `/search/` documentado para navegação geral. Popularidade continua disponível; ela não representa uma contagem verificada de downloads. O padrão de paginação é 100 tanto para navegação quanto para pesquisa, com opções de 50 e 20. Uma nova consulta textual começa por relevância e volta à primeira página. O último lote pode conter menos de 100 resultados. Testes da interface verificam carga inicial de 100, segunda página parcial e pesquisa com o mesmo tamanho.
