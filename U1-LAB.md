@@ -102,3 +102,9 @@ Esse processo não inventa cores, material, quantidades extras ou parâmetros au
 A importação de STL agora mantém o nome original de cada arquivo, permite selecionar um filamento do perfil por arquivo e remove a seleção parcial antes de organizar todo o conjunto. Cada arquivo é carregado separadamente; os filamentos são gravados no projeto 3MF local. Projetos 3MF fornecidos pelo criador continuam usando a configuração e a disposição originais, sem aplicar as escolhas de STL. Uma malha STL única não possui pintura: esse caso ainda exige pintura na área Preparar. As cores oferecidas correspondem ao perfil, não à detecção dos carretéis físicos.
 
 Validação: teste da biblioteca verifica dois arquivos com filamentos distintos na solicitação nativa; compilação macOS arm64. Não houve impressão física.
+
+### Identificação visual das peças
+
+A lista de arquivos usa as miniaturas disponibilizadas pelo Thingiverse, com nomes legíveis em português para componentes conhecidos e nomes de cores em vez de códigos hexadecimais. STL começa sem filamento selecionado, exigindo uma escolha explícita para evitar que tudo seja importado silenciosamente com o primeiro filamento. O Boo 2824758 recebe orientações pontuais baseadas na foto fornecida e na descrição do criador; são sugestões, não cores extraídas do STL nem um serviço de reconhecimento automático. Partes ambíguas são identificadas como tal. O perfil precisa conter os filamentos desejados.
+
+Testes cobrem miniatura carregada sem Referer e bloqueio do download enquanto houver peças selecionadas sem filamento; os nomes desconhecidos são preservados. Sem impressão física.

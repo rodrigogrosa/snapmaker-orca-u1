@@ -43,6 +43,33 @@
     if (next === 'favorites') cards($('#favorites .grid'), favorites);
     if (next === 'recent') { try { native('get_recent_projects'); } catch(e) {say(e.message);} }
   }
+  function colorName(hex){
+    if(!/^#[0-9a-f]{6}$/i.test(hex))return 'Cor personalizada';
+    const palette=[['Branco',255,255,255],['Preto',0,0,0],['Cinza',188,194,200],['Vermelho',193,68,63],['Azul',50,90,190],['Amarelo',245,210,0],['Verde',40,150,70],['Laranja',245,130,30],['Rosa',240,100,160],['Roxo',130,60,160],['Marrom',115,70,35]];
+    const rgb=[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16));
+    return palette.reduce((best,p)=>{const d=rgb.reduce((n,v,i)=>n+(v-p[i+1])**2,0);return d<best.d?{d,name:p[0]}:best;},{d:Infinity}).name;
+  }
+  function partLabel(name){
+    const known={'shaft_x_2.stl':'Pino de montagem (2 unidades)','right_eye.stl':'Olho direito','left_eye.stl':'Olho esquerdo','external_eye.stl':'Parte externa dos olhos','stand.stl':'Base de apoio','mouth.stl':'Interior da boca','front_body.stl':'Frente do corpo','tongue.stl':'Língua','back_body.stl':'Parte de trás do corpo','teeth.stl':'Dentes'};
+    if(known[name.toLowerCase()])return known[name.toLowerCase()];
+    const words={shaft:'Pino',right:'direito',left:'esquerdo',eye:'olho',external:'externo',stand:'Base',mouth:'Boca',front:'frente',body:'corpo',tongue:'Língua',back:'traseira',teeth:'Dentes'};
+    return name.replace(/\.(stl|3mf)$/i,'').split(/[_ -]+/).map(w=>words[w.toLowerCase()]||w).join(' ');
+  }
+  function referenceHint(modelId,name){
+    if(String(modelId)!=='2824758')return 'Cor original não informada. Compare a miniatura com a referência do criador.';
+    const hints={
+      'front_body.stl':'Sugestão pela foto: branco — parte da frente do corpo.',
+      'back_body.stl':'Sugestão pela foto: branco — parte de trás do corpo.',
+      'teeth.stl':'Sugestão pela foto: branco — dentes.',
+      'tongue.stl':'Sugestão pela foto: vermelho. O criador também sugere rosa para a língua.',
+      'mouth.stl':'O criador menciona vermelho-escuro para o interior da boca.',
+      'right_eye.stl':'Região do olho direito: preto e branco na foto. Compare o formato da miniatura antes de escolher.',
+      'left_eye.stl':'Região do olho esquerdo: preto e branco na foto. Compare o formato da miniatura antes de escolher.',
+      'external_eye.stl':'Componente dos olhos: compare a miniatura com as áreas pretas e brancas da foto.',
+      'shaft_x_2.stl':'Pino de montagem: cor livre. O nome do criador indica 2 unidades; confira a quantidade em Preparar.',
+      'stand.stl':'Base de apoio: escolha a cor que preferir.'
+    };return hints[name]||'Cor original não informada.';
+  }
   function imageURL(value) {
     try { const u = new URL(value); return u.protocol === 'https:' && !u.username && !u.password ? u.href : ''; } catch { return ''; }
   }
@@ -209,17 +236,24 @@
         if(run!==generation || view!=='detail')return;
         advanced.open=!firstProject;
         summary.textContent='Peças e cores dos filamentos';
+        const help=document.createElement('p');help.className='muted';help.textContent='As opções mostram as cores cadastradas no seu perfil. Se faltar branco, preto ou outra cor, ajuste os filamentos em Preparar → Gerenciamento de filamentos. A miniatura identifica a peça; sua cor de renderização não indica o filamento original.';advanced.append(help);
         const choices=[];
         for(const file of files){
-          const row=document.createElement('div');row.style.marginBottom='12px';
+          const row=document.createElement('div');row.className='part-card';
+          const preview=document.createElement('img');preview.referrerPolicy='no-referrer';preview.alt='Prévia de '+partLabel(file.name);preview.loading='lazy';
+          const thumbnail=imageURL(file.thumbnail);if(thumbnail){preview.src=thumbnail;row.append(preview);}
+          const content=document.createElement('div');row.append(content);
           const label=document.createElement('label'),check=document.createElement('input');check.type='checkbox';check.checked=firstProject?file.key===firstProject.key:true;
-          label.append(check,document.createTextNode(' '+file.name));row.append(label);
+          label.append(check,document.createTextNode(' '+partLabel(file.name)));content.append(label);
+          const original=document.createElement('small');original.textContent=file.name;content.append(original);
+          const hint=document.createElement('p');hint.className='muted';hint.textContent=referenceHint(item.id,file.name);if(file.extension!=='.3mf')content.append(hint);
           const filament=document.createElement('select');filament.setAttribute('aria-label','Filamento de '+file.name);
           if(file.extension!=='.3mf'){
-            for(const f of filaments){const option=document.createElement('option');option.value=f.id;option.textContent=`Filamento ${f.id} · ${f.color}`;filament.append(option);}
+            const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='Escolha a cor desta peça';filament.append(placeholder);
+            for(const f of filaments){const option=document.createElement('option');option.value=f.id;option.textContent=`${colorName(f.color)} · Filamento ${f.id}`;filament.append(option);}
             const swatch=document.createElement('span');swatch.style.cssText='display:inline-block;width:22px;height:22px;border:1px solid #888;border-radius:50%;margin:0 8px;vertical-align:middle';
             const paint=()=>{const color=filaments.find(f=>String(f.id)===filament.value)?.color;swatch.style.backgroundColor=/^#[0-9a-f]{6}$/i.test(color)?color:'transparent';};filament.addEventListener('change',paint);paint();
-            row.append(document.createElement('br'),swatch,filament);
+            content.append(swatch,filament);
           }
           advanced.append(row);choices.push({check,file,filament});
         }
@@ -227,6 +261,7 @@
           const selected=choices.filter(c=>c.check.checked);
           if(!selected.length){say('Selecione pelo menos um arquivo.');return;}
           if(selected.length>1 && selected.some(c=>c.file.extension==='.3mf')){say('Selecione o projeto 3MF sozinho ou apenas as peças STL.');return;}
+          if(selected.some(c=>c.file.extension!=='.3mf'&&!c.filament.value)){say('Escolha o filamento de cada peça selecionada. As miniaturas e indicações ao lado ajudam a identificar cada parte.');return;}
           open.disabled=true;
           try{
             for(let i=0;i<selected.length;i++){say(`Baixando arquivo ${i+1} de ${selected.length} para a pasta do U1 Lab…`);await request('u1_download_file',{provider:'thingiverse',file:selected[i].file.key});}

@@ -384,7 +384,12 @@ bool WebViewPanel::HandleLibraryMessage(const wxString& message)
                         urls["remote:" + key] = api ? api_url : url;
                         urls["ext:" + key]    = ext;
                         urls["name:" + key]   = file.value("name", "Arquivo" + ext);
-                        files.push_back({{"key", key}, {"name", file.value("name", "Arquivo" + ext)}, {"extension", ext}});
+                        files.push_back(
+                            {{"key", key},
+                             {"name", file.value("name", "Arquivo" + ext)},
+                             {"extension", ext},
+                             {"thumbnail",
+                              file.contains("thumbnail") && file["thumbnail"].is_string() ? file["thumbnail"].get<std::string>() : ""}});
                     }
                     wxGetApp().CallAfter([weak, urls] {
                         if (weak)
