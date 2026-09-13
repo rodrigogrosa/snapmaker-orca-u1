@@ -10,8 +10,8 @@ Evoluir o Snapmaker Orca para facilitar a descoberta, organização e importaç�
 - Projeto de origem: https://github.com/Snapmaker/OrcaSlicer
 - Base inicial: `56e82d53c85457f530827d2488664015b2eae08e` (`main`).
 - Licença: AGPL-3.0, conforme `LICENSE.txt`; preservar atribuições e avisos existentes.
-- Código original copiado com histórico Git. Nenhuma alteração funcional nesta etapa.
-- Compilação e execução locais ainda não validadas. Na inspeção inicial do Mac, Homebrew e Command Line Tools estavam disponíveis; CMake não foi encontrado no PATH e o caminho ativo do Xcode apontava para Command Line Tools.
+- Código original copiado com histórico Git. A primeira evolução da biblioteca está descrita em `U1-LAB.md`.
+- Ferramentas locais preparadas; dependências nativas compiladas com Ninja e CMake 3.31.10. Prévia de interface com runtime 2.3.6 validada no Mac. A compilação do programa principal é uma verificação separada, registrada em `U1-LAB.md` quando concluída.
 
 ## Primeira evolução
 

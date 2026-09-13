@@ -1,0 +1,56 @@
+:host { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #183e37; font-size: 14px; }
+* { box-sizing: border-box; }
+button, input { font: inherit; }
+button { cursor: pointer; border: 0; border-radius: 8px; background: #edf2ed; color: #183e37; padding: 10px 14px; }
+button:hover { filter: brightness(.95); }
+button:focus-visible, input:focus-visible { outline: 3px solid #3a927a; outline-offset: 3px; }
+button:disabled { cursor: not-allowed; opacity: .5; }
+.launcher { position: fixed; bottom: 22px; right: 26px; z-index: 2147483000; background: #174f40; color: white; border: 1px solid #ffffff55; box-shadow: 0 5px 20px #123b3330; padding: 14px 22px; border-radius: 50px; font-weight: 650; }
+dialog { color: #183e37; background: #f8f9f4; border: 1px solid #dce5db; border-radius: 18px; padding: 0; width: min(1000px, 94vw); max-height: 92vh; overflow: auto; box-shadow: 0 24px 90px #102c3544; }
+dialog::backdrop { background: #16392d66; backdrop-filter: blur(3px); }
+.panel { padding: 24px 38px 26px; }
+header, .section-heading, footer, .bookmark { display: flex; justify-content: space-between; align-items: center; gap: 18px; }
+.brand { font-size: 16px; font-weight: 800; letter-spacing: 2px; }
+.badge { font-size: 9px; letter-spacing: 1px; margin-left: 10px; font-weight: 600; border: 1px solid #cedacc; border-radius: 20px; padding: 5px 8px; vertical-align: middle; }
+.close { background: transparent; font-size: 18px; }
+.hero { padding: 23px 0 18px; }
+.eyebrow { color: #5f7e70; font-size: 10px; font-weight: 700; letter-spacing: 1.8px; }
+h1 { font-size: clamp(29px, 4vw, 43px); letter-spacing: -1.5px; line-height: 1.1; font-weight: 650; margin: 12px 0; }
+p { line-height: 1.55; color: #62756b; }
+.hero p { margin: 0; }
+.search { display: flex; gap: 10px; }
+input { padding: 13px 15px; background: white; color: #183e37; border: 1px solid #d5dfd4; border-radius: 9px; min-width: 0; }
+.search input { flex: 1; }
+.primary { color: white; background: #205744; font-weight: 600; }
+.suggestions { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin: 11px 0 24px; font-size: 11px; }
+.suggestions span { color: #708376; margin-right: 5px; }
+.suggestions button { padding: 6px 10px; border-radius: 20px; background: #eaf0e7; }
+h2 { font-size: 17px; letter-spacing: -.3px; margin: 0; }
+.section-heading { margin-bottom: 13px; }
+.section-heading > span { font-size: 11px; color: #718477; }
+.sites { display: grid; grid-template-columns: repeat(3, 1fr); gap: 13px; }
+.site { border: 1px solid #dce5d8; border-radius: 12px; padding: 19px; background: #fff; }
+.site-icon { display: inline-flex; align-items: center; justify-content: center; height: 32px; width: 32px; background: var(--site-color); color: white; border-radius: 9px; font-weight: 800; font-size: 18px; }
+h3 { font-size: 17px; margin: 13px 0 6px; }
+.site p { font-size: 12px; margin: 0 0 16px; min-height: 38px; }
+.site button { color: var(--site-color); background: transparent; padding: 0; font-size: 12px; font-weight: 650; text-align: left; }
+.saved { margin-top: 24px; }
+.count { font-size: 11px; background: #e7eddf; border-radius: 12px; padding: 3px 7px; margin-left: 6px; }
+.add-link { background: transparent; font-size: 12px; font-weight: 650; padding: 6px 0; }
+.empty { font-size: 12px; padding: 19px; margin: 0; border: 1px dashed #cbd9c9; border-radius: 10px; text-align: center; }
+.bookmark-form { display: grid; gap: 10px; padding: 16px; border: 1px solid #dce5d8; border-radius: 10px; margin: 10px 0; }
+[hidden] { display: none !important; }
+.bookmark-form label { display: grid; gap: 5px; font-size: 12px; }
+.status:empty { display: none; }
+.status { font-size: 12px; color: #9a4516; }
+.bookmark { padding: 8px 0; border-bottom: 1px solid #e0e7dc; }
+.bookmark-link { background: transparent; display: grid; text-align: left; gap: 4px; min-width: 0; }
+.bookmark-link strong { overflow-wrap: anywhere; }
+.bookmark-link span { font-size: 11px; color: #6c8072; }
+.remove { background: transparent; font-size: 11px; }
+footer { margin-top: 24px; padding-top: 18px; border-top: 1px solid #dce5d8; }
+footer strong { font-size: 12px; }
+footer p { font-size: 11px; max-width: 570px; margin: 6px 0 0; }
+.back { flex-shrink: 0; font-size: 12px; background: #e4edde; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+@media (max-width: 650px) { .panel { padding: 18px; } .sites { grid-template-columns: 1fr; } .site p { min-height: 0; } .search, footer { flex-direction: column; align-items: stretch; } .section-heading > span { display: none; } }
