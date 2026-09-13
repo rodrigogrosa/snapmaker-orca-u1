@@ -5,6 +5,13 @@ const assert = require('node:assert/strict');
   const browser = await chromium.launch({channel:'chrome',headless:true});
   const page = await browser.newPage({viewport:{width:1280,height:1000}});
   const errors=[],popups=[];page.on('pageerror',e=>errors.push(e.message));page.on('popup',p=>popups.push(p));
+  // The image CDN rejects requests carrying the local app's Referer.
+  const imageHeaders=[];
+  await page.route('https://cdn.thingiverse.com/test-*.png',async route=>{
+    const headers=route.request().headers();imageHeaders.push(headers);
+    if(headers.referer)return route.fulfill({status:403,body:'Referrer rejected'});
+    await route.fulfill({contentType:'image/png',body:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=','base64')});
+  });
   let saved=[], releasePage;
   const delayedPage=new Promise(resolve=>releasePage=resolve);
   await page.exposeFunction('fixtureBridge',async m=>{
@@ -13,9 +20,9 @@ const assert = require('node:assert/strict');
     if(m.command==='u1_configure_thingiverse')return {thingiverse:true};
     if(m.command==='u1_load_favorites')return saved;
     if(m.command==='u1_save_favorites'){saved=m.items;return true;}
-    if(m.command==='u1_detail')return {import_available:true,data:{name:'Peça de teste',description:'<p>Descrição <strong>segura</strong></p><script>window.hacked=true</script><a href="https://example.com">link</a>',copyright:{content:'Atribuição obrigatória'}}};
+    if(m.command==='u1_detail')return {import_available:true,data:{name:'Peça de teste',pics:['https://cdn.thingiverse.com/test-detail.png'],description:'<p>Descrição <strong>segura</strong></p><script>window.hacked=true</script><a href="https://example.com">link</a>',copyright:{content:'Atribuição obrigatória'}}};
     if(m.command==='u1_import')return {imported:true};
-    if(m.provider==='thingiverse')return {total:22,hits:[{id:900,name:'Resultado Thingiverse',creator:{name:'Criador'},thumbnail:''}]};
+    if(m.provider==='thingiverse')return {total:22,hits:[{id:900,name:'Resultado Thingiverse',creator:{name:'Criador'},thumbnail:'https://cdn.thingiverse.com/test-image.png'}]};
     if(m.command==='u1_search')return {code:200,page:{total:30},data:{models:Array.from({length:15},(_,i)=>({id:(m.page-1)*15+i+1,name:i===0&&m.page===1?'<img src=x onerror=alert(1)>':`Modelo ${m.page}-${i}`,creator:i%2?'Ana':'Beto',pic:'',publishedDate:i+1000,isOnlyGcode:i===3}))}};
     return {};
   });
@@ -46,6 +53,7 @@ const assert = require('node:assert/strict');
   await page.locator('#results .save').first().click();await page.reload();await page.getByRole('heading',{name:'30 modelos',exact:true}).waitFor();
   await page.getByRole('button',{name:'♡ Modelos salvos',exact:true}).click();assert.equal(await page.locator('#favorites .card').count(),1);
   await page.locator('#favorites .open-model').first().click();await page.getByRole('heading',{name:'Peça de teste',exact:true}).waitFor();
+  await page.waitForFunction(()=>document.querySelector('#detail img')?.naturalWidth>0);
   assert.equal(await page.locator('#detail a,#detail script').count(),0);assert.equal(await page.evaluate(()=>window.hacked),undefined);
   await page.getByRole('button',{name:'Importar no projeto',exact:true}).click();await page.getByRole('status').filter({hasText:'Modelo baixado'}).waitFor();
   await page.getByRole('button',{name:'◷ Arquivos recentes',exact:true}).click();await page.getByRole('button',{name:'Cubo.3mf',exact:true}).click();
@@ -63,6 +71,8 @@ const assert = require('node:assert/strict');
   await page.getByRole('button',{name:'▦ Biblioteca de modelos',exact:true}).click();await page.getByRole('searchbox').fill('café & vaso');
   await page.locator('#advanced summary').click();await page.getByLabel('Código da licença',{exact:true}).fill('ccsa');await page.getByLabel('Publicado após',{exact:true}).fill('2026-01-01');
   await page.getByRole('button',{name:'Buscar modelos',exact:true}).click();await page.getByRole('heading',{name:'22 modelos',exact:true}).waitFor();
+  await page.waitForFunction(()=>document.querySelector('#results img')?.naturalWidth>0);
+  assert(imageHeaders.length>=2);assert(imageHeaders.every(h=>!h.referer));
   const sent=await page.evaluate(()=>window.sent);const search=sent.filter(m=>m.command==='u1_search'&&m.provider==='thingiverse').at(-1);
   assert.equal(search.query,'café & vaso');assert.equal(search.filters.license,'ccsa');assert.equal(search.filters.posted_after,'2026-01-01');
   assert.equal(Object.keys(search.filters).length,18);

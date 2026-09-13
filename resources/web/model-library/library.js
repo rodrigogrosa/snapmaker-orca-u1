@@ -65,7 +65,7 @@
     for (const item of items) {
       const article = document.createElement('article');article.className='card';
       const open = button('', () => detail(item), 'open-model');
-      const img = document.createElement('img');img.loading='lazy';img.alt=''; if(item.image)img.src=item.image;
+      const img = document.createElement('img');img.referrerPolicy='no-referrer';img.loading='lazy';img.alt=''; if(item.image)img.src=item.image;
       img.addEventListener('error',()=>img.removeAttribute('src'), {once:true});
       const info = document.createElement('div');info.className='info';
       const source = document.createElement('div');source.className='source';source.textContent=item.provider === 'snapmaker' ? 'Snapmaker' : 'Thingiverse';
@@ -175,7 +175,7 @@
     try {
       const response=await request('u1_detail',{provider:item.provider,model_id:item.id});if(run!==generation || view!=='detail')return;
       const data=item.provider==='snapmaker'?response.data:response;
-      const grid=document.createElement('div');grid.className='detail-grid';const img=document.createElement('img');img.alt='';
+      const grid=document.createElement('div');grid.className='detail-grid';const img=document.createElement('img');img.referrerPolicy='no-referrer';img.alt='';
       const pic=imageURL(data.pics?.[0] || item.image);if(pic)img.src=pic;
       const info=document.createElement('div'),title=document.createElement('h2');title.textContent=String(data.name || item.name);
       const by=document.createElement('p');by.textContent=`${item.creator} · ${item.provider==='snapmaker'?'Snapmaker':'Thingiverse'}`;
