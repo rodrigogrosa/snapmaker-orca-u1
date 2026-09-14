@@ -7463,7 +7463,17 @@ size_t get_config_idx(const ConfigBase &config, ConfigFlowDomain domain, unsigne
 
 void PrintConfigDef::handle_legacy(t_config_option_key &opt_key, std::string &value)
 {
-    //BBS: handle legacy options
+    // Bambu 3MF files may use automatic/inherit sentinels which this fork
+    // does not support. Leave these options unset so the enclosing object or
+    // native preset supplies the value. In particular, do not turn filament 0
+    // into filament 1: that would override a part's assigned extruder/color.
+    if ((value == "-1" &&
+         (opt_key == "prime_tower_brim_width" || opt_key == "raft_first_layer_expansion" || opt_key == "tree_support_wall_count")) ||
+        (value == "0" && (opt_key == "solid_infill_filament" || opt_key == "sparse_infill_filament" || opt_key == "wall_filament"))) {
+        opt_key.clear();
+        return;
+    }
+    // BBS: handle legacy options
     if (opt_key == "enable_wipe_tower") {
         opt_key = "enable_prime_tower";
     } else if (opt_key == "wipe_tower_width") {
@@ -7478,13 +7488,13 @@ void PrintConfigDef::handle_legacy(t_config_option_key &opt_key, std::string &va
         opt_key = "overhang_fan_speed";
     } else if (opt_key == "infill_extruder") {
         opt_key = "sparse_infill_filament";
-    }else if (opt_key == "solid_infill_extruder") {
+    } else if (opt_key == "solid_infill_extruder") {
         opt_key = "solid_infill_filament";
-    }else if (opt_key == "perimeter_extruder") {
+    } else if (opt_key == "perimeter_extruder") {
         opt_key = "wall_filament";
-    }else if(opt_key == "wipe_tower_extruder") {
+    } else if (opt_key == "wipe_tower_extruder") {
         opt_key = "wipe_tower_filament";
-    }else if (opt_key == "support_material_extruder") {
+    } else if (opt_key == "support_material_extruder") {
         opt_key = "support_filament";
     } else if (opt_key == "support_material_interface_extruder") {
         opt_key = "support_interface_filament";
@@ -7492,13 +7502,10 @@ void PrintConfigDef::handle_legacy(t_config_option_key &opt_key, std::string &va
         opt_key = "support_angle";
     } else if (opt_key == "support_material_enforce_layers") {
         opt_key = "enforce_support_layers";
-    } else if ((opt_key == "initial_layer_print_height"   ||
-                opt_key == "initial_layer_speed"          ||
-                opt_key == "internal_solid_infill_speed"  ||
-                opt_key == "top_surface_speed"            ||
-                opt_key == "support_interface_speed"      ||
-                opt_key == "outer_wall_speed"             ||
-                opt_key == "support_object_xy_distance")     && value.find("%") != std::string::npos) {
+    } else if ((opt_key == "initial_layer_print_height" || opt_key == "initial_layer_speed" || opt_key == "internal_solid_infill_speed" ||
+                opt_key == "top_surface_speed" || opt_key == "support_interface_speed" || opt_key == "outer_wall_speed" ||
+                opt_key == "support_object_xy_distance") &&
+               value.find("%") != std::string::npos) {
         //BBS: this is old profile in which value is expressed as percentage.
         //But now these key-value must be absolute value.
         //Reset to default value by erasing these key to avoid parsing error.
@@ -7538,7 +7545,7 @@ void PrintConfigDef::handle_legacy(t_config_option_key &opt_key, std::string &va
         }
     } else if (opt_key == "overhang_fan_threshold" && value == "5%") {
         value = "10%";
-    }else if( opt_key == "wall_infill_order" ) {
+    } else if (opt_key == "wall_infill_order") {
         if (value == "inner wall/outer wall/infill" || value == "infill/inner wall/outer wall") {
             opt_key = "wall_sequence";
             value = "inner wall/outer wall";
@@ -7551,8 +7558,7 @@ void PrintConfigDef::handle_legacy(t_config_option_key &opt_key, std::string &va
         } else {
             opt_key = "wall_sequence";
         }
-    }
-    else if(opt_key == "ensure_vertical_shell_thickness") {
+    } else if (opt_key == "ensure_vertical_shell_thickness") {
         if(value == "1") {
             value = "ensure_all";
         }
@@ -7585,12 +7591,9 @@ void PrintConfigDef::handle_legacy(t_config_option_key &opt_key, std::string &va
         opt_key = "counterbore_hole_bridging";
     } else if (opt_key == "draft_shield" && value == "limited") {
         value = "disabled";
-    } else if ((opt_key == "sparse_infill_pattern"         ||
-                opt_key == "top_surface_pattern"           ||
-                opt_key == "bottom_surface_pattern"        ||
-                opt_key == "internal_solid_infill_pattern" ||
-                opt_key == "ironing_pattern"               ||
-                opt_key == "support_ironing_pattern") && value == "zig-zag") {
+    } else if ((opt_key == "sparse_infill_pattern" || opt_key == "top_surface_pattern" || opt_key == "bottom_surface_pattern" ||
+                opt_key == "internal_solid_infill_pattern" || opt_key == "ironing_pattern" || opt_key == "support_ironing_pattern") &&
+               value == "zig-zag") {
         value = "rectilinear";
     }
 

@@ -48,3 +48,7 @@ git push -u origin HEAD
 ## Compilação
 
 Consultar as instruções originais no `README.md` e as opções de `build_release_macos.sh`. O script usa Xcode por padrão e oferece a alternativa Ninja com `-x`; preparar a cadeia escolhida antes de executar. A existência do código local não significa que o aplicativo já foi compilado ou testado neste Mac.
+
+## Compatibilidade de 3MF Bambu
+
+A leitura de configurações ignora apenas os marcadores incompatíveis -1 de prime_tower_brim_width, raft_first_layer_expansion e tree_support_wall_count, e 0 de wall_filament, sparse_infill_filament e solid_infill_filament. Esses campos herdam o perfil/objeto em vez de fixar todas as peças no filamento 1. Demais valores inválidos continuam sujeitos à validação. Teste tests/model-library/bambu-config.cpp vinculado à biblioteca nativa validou os seis campos, herança do filamento 3, valores explícitos e o JSON do projeto real com três cores.
