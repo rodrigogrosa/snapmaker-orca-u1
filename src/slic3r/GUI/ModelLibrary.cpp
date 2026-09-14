@@ -57,6 +57,8 @@ bool WebViewPanel::HandleLibraryMessage(const wxString& message)
                 weak->RunScript(wxString::FromUTF8("window.u1LibraryResponse && window.u1LibraryResponse(" + result.dump() + ");"));
         });
     };
+    if (command.rfind("u1_mw_", 0) == 0)
+        return HandleMakerWorldMessage(input, reply);
     if (command == "u1_load_favorites" || command == "u1_save_favorites") {
         try {
             auto directory = boost::filesystem::path(data_dir()) / "model-library";

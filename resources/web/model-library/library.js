@@ -18,7 +18,7 @@
   function request(command, data = {}) {
     return new Promise((resolve, reject) => {
       const id = String(++serial);
-      const timer = setTimeout(() => { pending.delete(id); reject(new Error('A consulta demorou mais que o esperado. Tente novamente.')); }, ['u1_import','u1_download_file','u1_open_downloads'].includes(command) ? 180000 : 35000);
+      const timer = setTimeout(() => { pending.delete(id); reject(new Error('A consulta demorou mais que o esperado. Tente novamente.')); }, ['u1_mw_connect','u1_mw_verify'].includes(command) ? 600000 : ['u1_import','u1_download_file','u1_open_downloads','u1_mw_import'].includes(command) ? 180000 : 35000);
       pending.set(id, {resolve, reject, timer});
       try { native(command, {...data, id}); } catch (e) { clearTimeout(timer); pending.delete(id); reject(e); }
     });
@@ -170,7 +170,8 @@
     if(provider==='snapmaker' && catalogRun===generation && busy){render();return;}
     const run=++generation;busy=false;$('#refresh').disabled=false;
     if(provider==='snapmaker' && catalogComplete){say('');render();return;}
-    if(['printables','makerworld'].includes(provider)){filtered=[];total=0;render();say('Integração ainda indisponível. Nenhuma busca foi enviada. Veja a seção Integrações.');return;}
+    if(provider==='makerworld'){show('connections');$('#mw-url').focus();say('MakerWorld: importe pelo link do projeto abaixo.');return;}
+    if(provider==='printables'){filtered=[];total=0;render();say('Integração ainda indisponível. Nenhuma busca foi enviada. Veja a seção Integrações.');return;}
     if(provider==='thingiverse' && !connected){filtered=[];total=0;render();say('Conecte seu aplicativo Thingiverse em Integrações para pesquisar aqui.');return;}
     busy=true;$('#refresh').disabled=true;say('Consultando o catálogo…');
     try {
@@ -286,6 +287,45 @@
   $('#previous').addEventListener('click',()=>{page--;provider==='snapmaker'?render():search(false);});
   $('#next').addEventListener('click',()=>{page++;provider==='snapmaker'?render():search(false);});
   for(const [id,command] of [['open-project','homepage_openproject'],['new-project','homepage_newproject']])$('#'+id).addEventListener('click',()=>{try{native(command);}catch(e){say(e.message);}});
+  function mwConnection(data){
+    if(data.cancelled)return;
+    $('#mw-state').textContent=data.connected?'Conectado · sessão salva':data.verification?'Informe o código':'Conexão necessária para baixar';
+    $('#mw-verify').hidden=!data.verification;$('#mw-disconnect').disabled=!data.connected;
+  }
+  async function mwAction(command){
+    const buttons=[$('#mw-connect'),$('#mw-verify'),$('#mw-disconnect')];buttons.forEach(b=>b.disabled=true);
+    try{mwConnection(await request(command));$('#mw-status').textContent='';}
+    catch(e){$('#mw-status').textContent=e.message;}
+    finally{buttons.forEach(b=>b.disabled=false);}
+  }
+  $('#mw-connect').addEventListener('click',()=>mwAction('u1_mw_connect'));
+  $('#mw-verify').addEventListener('click',()=>mwAction('u1_mw_verify'));
+  $('#mw-disconnect').addEventListener('click',()=>mwAction('u1_mw_disconnect'));
+  $('#mw-form').addEventListener('submit',async e=>{
+    e.preventDefault();const submit=$('#mw-form button');submit.disabled=true;$('#mw-model').replaceChildren();$('#mw-status').textContent='Consultando perfis e placas…';
+    try{
+      const data=await request('u1_mw_resolve',{url:$('#mw-url').value.trim()});
+      const container=$('#mw-model'),title=document.createElement('h3');title.textContent=data.title;container.append(title);
+      const credit=document.createElement('p');credit.textContent=`${data.creator||'Criador'} · ${data.license||'Licença não informada'}`;container.append(credit);
+      const cover=imageURL(data.cover);if(cover){const img=document.createElement('img');img.src=cover;img.referrerPolicy='no-referrer';img.alt=data.title;img.style.cssText='max-width:300px;width:100%;border-radius:12px';container.append(img);}
+      const description=document.createElement('p');description.textContent=plain(data.summary);container.append(description);
+      for(const profile of data.profiles){
+        const card=document.createElement('div');card.className='connection';const heading=document.createElement('h4');heading.textContent=profile.title||'Perfil do criador';card.append(heading);
+        for(const plate of profile.plates||[]){
+          const row=document.createElement('p');row.textContent=`Placa ${plate.index}: `;
+          for(const filament of plate.filaments||[]){const color=document.createElement('span');color.textContent=` ${colorName(filament.color)} (${filament.type||'material não informado'}) `;color.style.cssText='display:inline-block;margin:4px;padding:4px 8px;border:1px solid #b8c6bc;border-radius:8px';if(/^#[0-9a-f]{6}$/i.test(filament.color))color.style.borderLeft='12px solid '+filament.color;row.append(color);}
+          card.append(row);
+          if((plate.filaments||[]).length>4){const warning=document.createElement('p');warning.textContent='Esta placa usa mais de quatro filamentos. Será necessário revisar a distribuição para sua U1.';card.append(warning);}
+        }
+        const open=button('Baixar projeto com cores',async()=>{
+          open.disabled=true;$('#mw-status').textContent='Baixando o projeto 3MF completo…';
+          try{await request('u1_mw_import',{profile:String(profile.id)});$('#mw-status').textContent='Projeto baixado e enviado para abertura. Confira a importação, selecione sua Snapmaker U1 e revise materiais e pintura antes de fatiar.';}catch(e){$('#mw-status').textContent=e.message;}finally{open.disabled=false;}
+        },'primary');card.append(open);container.append(card);
+      }
+      $('#mw-status').textContent=data.profiles.length?'Escolha um perfil. As cores acima são as informações publicadas no projeto.':'Este modelo não disponibilizou perfis 3MF para importar.';
+    }catch(e){$('#mw-status').textContent=e.message;}finally{submit.disabled=false;}
+  });
+  request('u1_mw_status').then(mwConnection).catch(e=>{$('#mw-status').textContent=e.message;});
   function connection(data){connected=data.thingiverse;$('#provider option[value=thingiverse]').textContent=connected?'Thingiverse':'Thingiverse — requer conexão';$('#thingiverse-state').textContent=connected?'Conectado · chave salva':data.recovery_required?'Chave antiga bloqueada · reconecte uma vez':'Conexão necessária';$('#disconnect').disabled=!connected;}
   $('#connect').addEventListener('click',async()=>{try{connection(await request('u1_configure_thingiverse'));}catch(e){say(e.message);}});
   $('#disconnect').addEventListener('click',async()=>{try{connection(await request('u1_disconnect_thingiverse'));}catch(e){say(e.message);}});

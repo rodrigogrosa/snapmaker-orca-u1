@@ -25,6 +25,7 @@ class LibraryCredentialFile
         FD(const FD&) = delete;
     };
     std::filesystem::path directory;
+    std::string           filename;
     static void           check(int fd, bool folder)
     {
         struct stat s{};
@@ -34,9 +35,14 @@ class LibraryCredentialFile
     }
 
 public:
-    explicit LibraryCredentialFile(std::filesystem::path path) : directory(std::move(path)) {}
+    explicit LibraryCredentialFile(std::filesystem::path path, std::string name = "thingiverse.token")
+        : directory(std::move(path)), filename(std::move(name))
+    {
+        if (filename != "thingiverse.token" && filename != "makerworld.token")
+            throw std::runtime_error("credential name");
+    }
     static bool valid(const std::string& value)
-    { return value.size() <= 512 && value.find_first_of("\r\n\t \0", 0, 5) == std::string::npos; }
+    { return value.size() <= 8192 && value.find_first_of("\r\n\t \0", 0, 5) == std::string::npos; }
     // Missing and explicitly disconnected are different: an empty file is a tombstone.
     bool load(std::string& value) const
     {
@@ -45,7 +51,7 @@ public:
             return false;
         FD dir(raw);
         check(dir.value, true);
-        raw = openat(dir.value, "thingiverse.token", O_RDONLY | O_NOFOLLOW | O_CLOEXEC | O_NONBLOCK);
+        raw = openat(dir.value, filename.c_str(), O_RDONLY | O_NOFOLLOW | O_CLOEXEC | O_NONBLOCK);
         if (raw < 0 && errno == ENOENT)
             return false;
         FD file(raw);
@@ -61,7 +67,7 @@ public:
             if (!count)
                 break;
             result.append(buffer, size_t(count));
-            if (result.size() > 512)
+            if (result.size() > 8192)
                 throw std::runtime_error("credential size");
         }
         if (!valid(result))
@@ -90,7 +96,7 @@ public:
                     throw std::runtime_error("credential write");
                 done += size_t(count);
             }
-            if (fsync(file.value) || renameat(dir.value, temporary.c_str(), dir.value, "thingiverse.token"))
+            if (fsync(file.value) || renameat(dir.value, temporary.c_str(), dir.value, filename.c_str()))
                 throw std::runtime_error("credential commit");
             fsync(dir.value);
         } catch (...) {

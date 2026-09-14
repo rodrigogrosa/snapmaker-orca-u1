@@ -10,6 +10,12 @@ int main(int argc, char** argv)
     const std::string     synthetic = "synthetic-test-only-not-a-key";
     bool                  ok        = false;
     try {
+        if (action == "isolation") {
+            LibraryCredentialFile other(argv[2], "makerworld.token");
+            other.save(std::string(2048, 'x'));
+            std::string second;
+            ok = other.load(second) && second.size() == 2048 && store.load(value) && value == synthetic;
+        }
         if (action == "write") {
             store.save(synthetic);
             ok = true;
