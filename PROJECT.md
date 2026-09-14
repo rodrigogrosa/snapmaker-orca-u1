@@ -15,7 +15,7 @@ Evoluir o Snapmaker Orca para facilitar a descoberta, organização e importaç�
 
 ## Biblioteca e próximos passos
 
-A página inicial apresenta os resultados diretamente. Snapmaker tem catálogo, filtros locais, detalhes, favoritos persistentes e importação. Thingiverse tem conector da API oficial com filtros, dependente da credencial do aplicativo do usuário. Printables permanece indisponível. MakerWorld tem um conector comunitário de importação por link, com consulta de perfis/cores e autenticação Bambu global; login e download autenticados ainda exigem validação com a conta do usuário. Não abrir páginas externas como substituto de integração.
+A página inicial apresenta os resultados diretamente. Snapmaker tem catálogo, filtros locais, detalhes, favoritos persistentes e importação. Thingiverse tem conector da API oficial com filtros, dependente da credencial do aplicativo do usuário. Printables permanece indisponível. MakerWorld aparece na biblioteca com busca por palavras, 100 resultados por página, ordenação, filtros de multicolorido/bico/licença, favoritos, detalhes e importação de perfis 3MF. Usa o endpoint design2 observado no site e autenticação Bambu global persistente. Busca real validada com duas páginas de 100 resultados sem repetição; download autenticado ainda requer validação ponta a ponta. Não abrir páginas externas como substituto de integração.
 
 O perfil de laboratório usa Brasil e português brasileiro. Os catálogos nativo e web foram completados e têm testes de cobertura; conteúdo de criadores, firmware e diálogos do sistema requerem avaliação separada. Ver detalhes em `U1-LAB.md`.
 

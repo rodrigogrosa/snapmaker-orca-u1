@@ -139,7 +139,7 @@ bool WebViewPanel::HandleMakerWorldMessage(const MJ& input, std::function<void(M
             return true;
         }
         std::function<MJ()> job;
-        bool                auth = false, resolve = false, download = false;
+        bool                auth = false, resolve = false, download = false, search = false;
         if (command == "u1_mw_connect" || command == "u1_mw_verify") {
             auth = true;
             std::string payload, tfa = m_mw_tfa;
@@ -188,6 +188,46 @@ bool WebViewPanel::HandleMakerWorldMessage(const MJ& input, std::function<void(M
                     throw std::runtime_error("Não foi possível iniciar a verificação do autenticador.");
                 return json(fetch("https://bambulab.com/api/sign-in/tfa", "", payload, csrf));
             };
+        } else if (command == "u1_mw_search") {
+            search             = true;
+            const auto filters = input.value("filters", MJ::object());
+            const auto query   = input.value("query", "");
+            if (query.size() > 800)
+                throw std::runtime_error("Pesquisa muito longa.");
+            const auto                  sort = filters.value("sort", query.empty() ? "newUploads" : "score");
+            const std::set<std::string> orders{"score", "newUploads", "hotScore", "downloadCount", "likeCount", "boosts"};
+            if (!orders.count(sort))
+                throw std::runtime_error("Ordenação inválida.");
+            const auto size = filters.value("per_page", "100");
+            if (size != "100" && size != "50" && size != "20")
+                throw std::runtime_error("Quantidade inválida.");
+            const int page = input.value("page", 1);
+            if (page < 1 || page > 500)
+                throw std::runtime_error("Página inválida.");
+            std::string url = "https://api.bambulab.com/v1/search-service/select/design2?designType=0&orderBy=" + sort + "&limit=" + size +
+                              "&offset=" + std::to_string((page - 1) * std::stoi(size));
+            if (!query.empty())
+                url += "&keyword=" + Http::url_encode(query);
+            const std::map<std::string, std::set<std::string>> allowed{{"multiColor", {"true", "false"}},
+                                                                       {"nozzleDiameters", {"0.2", "0.4", "0.6", "0.8"}},
+                                                                       {"licenses",
+                                                                        {"Public Domain", "BY", "BY-SA", "BY-ND", "BY-NC", "BY-NC-SA",
+                                                                         "BY-NC-ND", "Standard Digital File License"}}};
+            for (const auto& entry : allowed) {
+                auto value = filters.value(entry.first, "");
+                if (value.empty())
+                    continue;
+                if (!entry.second.count(value))
+                    throw std::runtime_error("Filtro inválido.");
+                url += "&" + entry.first + "=" + Http::url_encode(value);
+            }
+            const auto token = m_mw_token;
+            job              = [url, token] {
+                auto result = json(fetch(url, token));
+                if (!result.contains("hits") || !result["hits"].is_array() || !result.contains("total") || !result["total"].is_number())
+                    throw std::runtime_error("O formato da busca MakerWorld mudou.");
+                return MJ{{"hits", result["hits"]}, {"total", result["total"]}};
+            };
         } else if (command == "u1_mw_resolve") {
             resolve        = true;
             const auto url = input.value("url", "");
@@ -230,7 +270,7 @@ bool WebViewPanel::HandleMakerWorldMessage(const MJ& input, std::function<void(M
             return true;
         }
         m_mw_busy = true;
-        std::thread([job, weak, reply, auth, resolve, download] {
+        std::thread([job, weak, reply, auth, resolve, download, search] {
             MJ          result;
             std::string error;
             try {
@@ -242,7 +282,7 @@ bool WebViewPanel::HandleMakerWorldMessage(const MJ& input, std::function<void(M
             }
             if (!wxTheApp)
                 return;
-            wxGetApp().CallAfter([weak, reply, result = std::move(result), error, auth, resolve, download] {
+            wxGetApp().CallAfter([weak, reply, result = std::move(result), error, auth, resolve, download, search] {
                 if (!weak)
                     return;
                 weak->m_mw_busy = false;
@@ -288,6 +328,8 @@ bool WebViewPanel::HandleMakerWorldMessage(const MJ& input, std::function<void(M
                                  {"cover", result.value("coverUrl", "")},
                                  {"summary", result.value("summary", "")},
                                  {"profiles", profiles}}}});
+                    } else if (search) {
+                        reply({{"ok", true}, {"data", result}});
                     } else if (download) {
                         // Preserve the complete project and painting. Native import handles format compatibility.
                         wxGetApp().request_open_project(result.at("path").get<std::string>());

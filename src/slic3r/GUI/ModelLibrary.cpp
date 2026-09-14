@@ -72,7 +72,7 @@ bool WebViewPanel::HandleLibraryMessage(const wxString& message)
                     for (const auto* key : {"id", "provider", "name", "creator", "image"})
                         if (!item.contains(key) || !item[key].is_string() || item[key].get<std::string>().size() > 2048)
                             return false;
-                    if (item["provider"] != "snapmaker" && item["provider"] != "thingiverse")
+                    if (item["provider"] != "snapmaker" && item["provider"] != "thingiverse" && item["provider"] != "makerworld")
                         return false;
                 }
                 return true;

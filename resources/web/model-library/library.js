@@ -8,7 +8,7 @@
   const pending = new Map();
   let serial = 0, generation = 0, provider = 'snapmaker', view = 'catalog', page = 1;
   let catalog = [], filtered = [], favorites = [], connected = false, total = 0, previousView = 'catalog';
-  let lastThingiverseQuery = null;
+  let lastThingiverseQuery = null, lastMakerWorldQuery = null, makerWorldSearch = Promise.resolve();
   let storageOK = false, busy = false, catalogComplete = false, catalogRun = null;
   const format = n => Number(n).toLocaleString('pt-BR');
   function native(command, data = {}) {
@@ -74,9 +74,9 @@
     try { const u = new URL(value); return u.protocol === 'https:' && !u.username && !u.password ? u.href : ''; } catch { return ''; }
   }
   function model(raw, source) {
-    return {id:String(raw.id), provider:source, name:String(raw.name || 'Modelo sem título'),
-      creator:String(source === 'snapmaker' ? raw.creator || 'Criador não informado' : raw.creator?.name || 'Criador não informado'),
-      image:imageURL(source === 'snapmaker' ? raw.pic : raw.thumbnail), date:source === 'snapmaker' ? Number(raw.publishedDate) : Date.parse(raw.added), onlyGcode:raw.isOnlyGcode === true};
+    return {id:String(raw.id), provider:source, name:String(raw.title || raw.name || 'Modelo sem título'),
+      creator:String(source === 'snapmaker' ? raw.creator || 'Criador não informado' : raw.designCreator?.name || raw.creator?.name || 'Criador não informado'),
+      image:imageURL(source === 'snapmaker' ? raw.pic : raw.cover || raw.thumbnail), date:source === 'snapmaker' ? Number(raw.publishedDate) : Date.parse(raw.added), onlyGcode:raw.isOnlyGcode === true};
   }
   const same = (a,b) => a.id === b.id && a.provider === b.provider;
   async function save(item) {
@@ -96,7 +96,7 @@
       const img = document.createElement('img');img.referrerPolicy='no-referrer';img.loading='lazy';img.alt=''; if(item.image)img.src=item.image;
       img.addEventListener('error',()=>img.removeAttribute('src'), {once:true});
       const info = document.createElement('div');info.className='info';
-      const source = document.createElement('div');source.className='source';source.textContent=item.provider === 'snapmaker' ? 'Snapmaker' : 'Thingiverse';
+      const source = document.createElement('div');source.className='source';source.textContent=item.provider === 'snapmaker' ? 'Snapmaker' : item.provider==='makerworld' ? 'MakerWorld' : 'Thingiverse';
       const name=document.createElement('strong');name.textContent=item.name;
       const author=document.createElement('small');author.textContent=item.creator;
       info.append(source,name,author);open.append(img,info);
@@ -130,6 +130,14 @@
       for(const [name,label] of [['license','Código da licença'],['category_id','Identificador da categoria'],['subjects','Disciplinas (identificadores)'],['grades','Séries escolares (identificadores)'],['standards','Normas educacionais (identificadores)'],['liked_by','Curtido pelo usuário (identificador)'],['made_by','Impresso pelo usuário (identificador)']])field(advanced,label,name);
       for(const [name,label] of [['is_edu_approved','Aprovado para educação'],['customizable','Personalizável'],['show_customized','Incluir personalizações'],['has_makes','Com impressões da comunidade'],['is_featured','Em destaque'],['is_derivative','Remix'],['is_fis_challenge_winnereatured','Vencedor de desafio (experimental)']])field(advanced,label,name,[['','Padrão da plataforma'],['1','Sim'],['0','Não']]);
       $('#scope').textContent='Sem texto, explore os modelos mais recentes ou escolha Popularidade. Novas buscas começam em Relevância. Em Relevância, títulos com todas as palavras pesquisadas aparecem primeiro em cada página. Mais recentes prioriza a data e pode trazer correspondências na descrição. Filtro por cor ou quantidade de cores não está disponível neste catálogo.';
+    } else if(provider==='makerworld') {
+      field(normal,'Ordenar por','sort',[['score','Relevância'],['newUploads','Mais recentes'],['hotScore','Em alta'],['downloadCount','Mais baixados'],['likeCount','Mais curtidos'],['boosts','Mais impulsionados']]);
+      if(!$('#query').value.trim())normal.querySelector('[name=sort]').value='newUploads';
+      field(normal,'Resultados por página','per_page',[['100','100'],['50','50'],['20','20']]);
+      field(normal,'Cores','multiColor',[['','Todas'],['true','Somente multicoloridos'],['false','Somente uma cor']]);
+      field(normal,'Diâmetro do bico','nozzleDiameters',[['','Todos'],...['0.2','0.4','0.6','0.8'].map(n=>[n,n.replace('.',',')+' mm'])]);
+      field(normal,'Licença','licenses',[['','Todas'],...['Public Domain','BY','BY-SA','BY-ND','BY-NC','BY-NC-SA','BY-NC-ND','Standard Digital File License'].map(n=>[n,n])]);
+      $('#scope').textContent='Busque projetos, explore os mais recentes ou os mais baixados. O filtro multicolorido usa a classificação do MakerWorld; abra o modelo para conferir as cores e placas de cada perfil 3MF.';
     } else $('#scope').textContent='Esta plataforma ainda não está conectada. Consulte Integrações para ver o motivo.';
     for(const input of normal.querySelectorAll('[name]'))if(preserved[input.name] !== undefined && [...input.options].some(o=>o.value===preserved[input.name]))input.value=preserved[input.name];
   }
@@ -150,7 +158,7 @@
     const size=provider==='snapmaker'?24:Number(values().per_page || 100);
     const pages=Math.max(1,Math.ceil(total/size));page=Math.min(page,pages);
     cards($('#results'),provider==='snapmaker'?filtered.slice((page-1)*size,page*size):filtered);
-    const unavailable=provider!=='snapmaker' && (provider!=='thingiverse' || !connected);
+    const unavailable=provider!=='snapmaker' && provider!=='makerworld' && (provider!=='thingiverse' || !connected);
     $('#connection-help').hidden=!unavailable;
     $('.pagination').hidden=unavailable;
     $('#refresh').hidden=unavailable;
@@ -170,7 +178,6 @@
     if(provider==='snapmaker' && catalogRun===generation && busy){render();return;}
     const run=++generation;busy=false;$('#refresh').disabled=false;
     if(provider==='snapmaker' && catalogComplete){say('');render();return;}
-    if(provider==='makerworld'){show('connections');$('#mw-url').focus();say('MakerWorld: importe pelo link do projeto abaixo.');return;}
     if(provider==='printables'){filtered=[];total=0;render();say('Integração ainda indisponível. Nenhuma busca foi enviada. Veja a seção Integrações.');return;}
     if(provider==='thingiverse' && !connected){filtered=[];total=0;render();say('Conecte seu aplicativo Thingiverse em Integrações para pesquisar aqui.');return;}
     busy=true;$('#refresh').disabled=true;say('Consultando o catálogo…');
@@ -188,6 +195,13 @@
           say(`Carregando ${format(loaded.length)} de ${format(count)} modelos…`);p++;
         }
         catalogComplete=true;filters();
+      } else if(provider==='makerworld') {
+        const query=$('#query').value.trim();lastMakerWorldQuery=query;
+        const payload={query,page,filters:values()};
+        const task=makerWorldSearch.catch(()=>{}).then(()=>run===generation?request('u1_mw_search',payload):null);
+        makerWorldSearch=task;const response=await task;if(run!==generation)return;
+        if(!Array.isArray(response.hits))throw new Error('O formato da busca MakerWorld mudou.');
+        filtered=response.hits.map(x=>model(x,'makerworld'));total=Number(response.total||0);
       } else {
         const query=$('#query').value.trim();lastThingiverseQuery=query;
         const response=await request('u1_search',{provider,query,page,filters:values()});if(run!==generation)return;
@@ -212,6 +226,7 @@
   async function detail(item) {
     ++generation;busy=false;$('#refresh').disabled=false;previousView=view;show('detail');$('#detail-body').replaceChildren();say('Carregando detalhes…');
     const run=generation;
+    if(item.provider==='makerworld'){await resolveMakerWorld('https://makerworld.com/en/models/'+item.id,run);return;}
     try {
       const response=await request('u1_detail',{provider:item.provider,model_id:item.id});if(run!==generation || view!=='detail')return;
       const data=item.provider==='snapmaker'?response.data:response;
@@ -277,11 +292,11 @@
     }catch(e){if(run===generation)say(e.message);}
   }
   document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{++generation;busy=false;$('#refresh').disabled=false;show(b.dataset.view);if(view==='catalog')search();}));
-  $('#back').addEventListener('click',()=>{++generation;busy=false;show(previousView==='favorites'?'favorites':'catalog');if(view==='catalog')search();});
+  $('#back').addEventListener('click',()=>{++generation;busy=false;show(previousView==='favorites'?'favorites':'catalog');if(view==='catalog')search(false);});
   $('#provider').addEventListener('change',()=>{++generation;busy=false;provider=$('#provider').value;filtered=[];total=0;page=1;filters(false);search();});
   $('#resolve-connection').addEventListener('click',()=>{++generation;busy=false;show('connections');});
   $('#use-snapmaker').addEventListener('click',()=>{++generation;busy=false;provider='snapmaker';$('#provider').value=provider;filters(false);search();});
-  $('#search').addEventListener('submit',e=>{e.preventDefault();if(provider==='thingiverse' && $('#query').value.trim()!==lastThingiverseQuery)$('#provider-filters [name=sort]').value=$('#query').value.trim()?'relevant':'newest';search();});
+  $('#search').addEventListener('submit',e=>{e.preventDefault();if(provider==='makerworld' && $('#query').value.trim()!==lastMakerWorldQuery)$('#provider-filters [name=sort]').value=$('#query').value.trim()?'score':'newUploads';if(provider==='thingiverse' && $('#query').value.trim()!==lastThingiverseQuery)$('#provider-filters [name=sort]').value=$('#query').value.trim()?'relevant':'newest';search();});
   $('#provider-filters').addEventListener('change',()=>search());
   $('#refresh').addEventListener('click',()=>{catalog=[];catalogComplete=false;search();});
   $('#previous').addEventListener('click',()=>{page--;provider==='snapmaker'?render():search(false);});
@@ -301,11 +316,12 @@
   $('#mw-connect').addEventListener('click',()=>mwAction('u1_mw_connect'));
   $('#mw-verify').addEventListener('click',()=>mwAction('u1_mw_verify'));
   $('#mw-disconnect').addEventListener('click',()=>mwAction('u1_mw_disconnect'));
-  $('#mw-form').addEventListener('submit',async e=>{
-    e.preventDefault();const submit=$('#mw-form button');submit.disabled=true;$('#mw-model').replaceChildren();$('#mw-status').textContent='Consultando perfis e placas…';
+  async function resolveMakerWorld(url,run){
+    const container=$('#detail-body');say('Consultando perfis e placas…');
     try{
-      const data=await request('u1_mw_resolve',{url:$('#mw-url').value.trim()});
-      const container=$('#mw-model'),title=document.createElement('h3');title.textContent=data.title;container.append(title);
+      const data=await request('u1_mw_resolve',{url});
+      if(run!==generation || view!=='detail')return;
+      const title=document.createElement('h2');title.textContent=data.title;container.append(title);
       const credit=document.createElement('p');credit.textContent=`${data.creator||'Criador'} · ${data.license||'Licença não informada'}`;container.append(credit);
       const cover=imageURL(data.cover);if(cover){const img=document.createElement('img');img.src=cover;img.referrerPolicy='no-referrer';img.alt=data.title;img.style.cssText='max-width:300px;width:100%;border-radius:12px';container.append(img);}
       const description=document.createElement('p');description.textContent=plain(data.summary);container.append(description);
@@ -318,13 +334,13 @@
           if((plate.filaments||[]).length>4){const warning=document.createElement('p');warning.textContent='Esta placa usa mais de quatro filamentos. Será necessário revisar a distribuição para sua U1.';card.append(warning);}
         }
         const open=button('Baixar projeto com cores',async()=>{
-          open.disabled=true;$('#mw-status').textContent='Baixando o projeto 3MF completo…';
-          try{await request('u1_mw_import',{profile:String(profile.id)});$('#mw-status').textContent='Projeto baixado e enviado para abertura. Confira a importação, selecione sua Snapmaker U1 e revise materiais e pintura antes de fatiar.';}catch(e){$('#mw-status').textContent=e.message;}finally{open.disabled=false;}
+          open.disabled=true;status.textContent='Baixando o projeto 3MF completo…';
+          try{await request('u1_mw_import',{profile:String(profile.id)});status.textContent='Projeto baixado e enviado para abertura. Confira a importação, selecione sua Snapmaker U1 e revise materiais e pintura antes de fatiar.';}catch(e){status.textContent=e.message;}finally{open.disabled=false;}
         },'primary');card.append(open);container.append(card);
       }
-      $('#mw-status').textContent=data.profiles.length?'Escolha um perfil. As cores acima são as informações publicadas no projeto.':'Este modelo não disponibilizou perfis 3MF para importar.';
-    }catch(e){$('#mw-status').textContent=e.message;}finally{submit.disabled=false;}
-  });
+      status.textContent=data.profiles.length?'Escolha um perfil. As cores acima são as informações publicadas no projeto.':'Este modelo não disponibilizou perfis 3MF para importar.';
+    }catch(e){if(run===generation)say(e.message);}
+  }
   request('u1_mw_status').then(mwConnection).catch(e=>{$('#mw-status').textContent=e.message;});
   function connection(data){connected=data.thingiverse;$('#provider option[value=thingiverse]').textContent=connected?'Thingiverse':'Thingiverse — requer conexão';$('#thingiverse-state').textContent=connected?'Conectado · chave salva':data.recovery_required?'Chave antiga bloqueada · reconecte uma vez':'Conexão necessária';$('#disconnect').disabled=!connected;}
   $('#connect').addEventListener('click',async()=>{try{connection(await request('u1_configure_thingiverse'));}catch(e){say(e.message);}});
