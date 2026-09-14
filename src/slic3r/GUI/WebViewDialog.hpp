@@ -24,6 +24,9 @@
 #include <wx/tbarbase.h>
 #include "wx/textctrl.h"
 #include <wx/timer.h>
+#include "../Utils/Http.hpp"
+#include <map>
+#include <nlohmann/json_fwd.hpp>
 
 
 namespace Slic3r {
@@ -54,6 +57,14 @@ public:
     void OnTitleChanged(wxWebViewEvent &evt);
     void OnNewWindow(wxWebViewEvent& evt);
     void OnScriptMessage(wxWebViewEvent& evt);
+    bool HandleLibraryMessage(const wxString &message);
+    Http::Ptr m_library_request;
+    std::string m_library_token;
+    bool HandleMakerWorldMessage(const nlohmann::json&, std::function<void(nlohmann::json)>);
+    bool m_mw_busy = false;
+    std::string m_mw_token, m_mw_email, m_mw_tfa;
+    std::map<std::string, std::string> m_mw_profiles;
+    std::map<std::string, std::string> m_library_downloads;
     void OnScriptResponseMessage(wxCommandEvent& evt);
     void OnViewSourceRequest(wxCommandEvent& evt);
     void OnViewTextRequest(wxCommandEvent& evt);

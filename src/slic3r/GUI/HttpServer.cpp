@@ -305,7 +305,9 @@ void session::read_first_line()
 {
     auto self(shared_from_this());
 
-    async_read_until(socket, buff, '\r', [this, self](const boost::beast::error_code& e, std::size_t s) {
+    // Wait for the complete CRLF: a trailing LF from a split packet must not
+    // become the next header, hiding the empty line that terminates the request.
+    async_read_until(socket, buff, "\r\n", [this, self](const boost::beast::error_code& e, std::size_t s) {
         if (!e) {
             std::string  line, ignore;
             std::istream stream{&buff};
@@ -348,7 +350,7 @@ void session::read_next_line()
         return; // 提前返回，避免后续逻辑
     }
 
-    async_read_until(socket, buff, '\r', [this, self](const boost::beast::error_code& e, std::size_t s) {
+    async_read_until(socket, buff, "\r\n", [this, self](const boost::beast::error_code& e, std::size_t s) {
         if (!e) {
             std::string  line, ignore;
             std::istream stream{&buff};
@@ -933,7 +935,7 @@ std::string HttpServer::map_url_to_file_path(const std::string& url)
     }
 
     if (trimmed_url == "/") {
-        trimmed_url = "/flutter_web/index.html"; // defualt home page
+        trimmed_url = "/web/model-library/index.html"; // U1 Lab home
     }
     else if (trimmed_url.substr(0, 11) == "/localfile/") {
         auto real_path = trimmed_url.substr(11);
@@ -973,7 +975,10 @@ std::string HttpServer::map_url_to_file_path(const std::string& url)
     }
 
     wxString res = "";
-    if (trimmed_url.find("flutter_web") == std::string::npos) 
+    // U1 Lab ships an audited entry point, runtime and translation together.
+    // A downloaded upstream cache must not replace only part of that set.
+    const bool bundled_u1_ui = boost::filesystem::exists(boost::filesystem::path(resources_dir()) / "web/flutter_web/locale-pt-br.js");
+    if (bundled_u1_ui || trimmed_url.find("flutter_web") == std::string::npos)
     {
        res = wxString::FromUTF8(resources_dir()) + trimmed_url;
     }

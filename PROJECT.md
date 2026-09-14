@@ -10,18 +10,16 @@ Evoluir o Snapmaker Orca para facilitar a descoberta, organização e importaç�
 - Projeto de origem: https://github.com/Snapmaker/OrcaSlicer
 - Base inicial: `56e82d53c85457f530827d2488664015b2eae08e` (`main`).
 - Licença: AGPL-3.0, conforme `LICENSE.txt`; preservar atribuições e avisos existentes.
-- Código original copiado com histórico Git. Nenhuma alteração funcional nesta etapa.
-- Compilação e execução locais ainda não validadas. Na inspeção inicial do Mac, Homebrew e Command Line Tools estavam disponíveis; CMake não foi encontrado no PATH e o caminho ativo do Xcode apontava para Command Line Tools.
+- Código original copiado com histórico Git. A primeira evolução da biblioteca está descrita em `U1-LAB.md`.
+- Ferramentas locais preparadas; dependências nativas compiladas com Ninja e CMake 3.31.10. Prévia de interface com runtime 2.3.6 validada no Mac. O programa principal também foi compilado e validado na abertura da biblioteca e leitura de STL, após corrigir a leitura HTTP de requisições fragmentadas. Resultados e limites em `U1-LAB.md`.
 
-## Primeira evolução
+## Biblioteca e próximos passos
 
-1. Preparar as dependências e compilar a base original no Mac. Executar o aplicativo com dados de desenvolvimento separados dos perfis pessoais.
-2. Identificar a implementação da página inicial e da importação; adicionar acesso a sites de modelos sem depender de APIs ainda não verificadas.
-3. Implementar biblioteca local de arquivos STL/3MF com miniaturas, favoritos e categorias.
-4. Facilitar a importação com conferência do perfil U1, materiais e atribuição aos quatro cabeçotes. Não prometer conversão universal de projetos 3MF.
-5. Avaliar integrações específicas conforme APIs e condições de cada serviço.
+A página inicial apresenta os resultados diretamente. Snapmaker tem catálogo, filtros locais, detalhes, favoritos persistentes e importação. Thingiverse tem conector da API oficial com filtros, dependente da credencial do aplicativo do usuário. Printables permanece indisponível. MakerWorld aparece na biblioteca com busca por palavras, 100 resultados por página, ordenação, filtros de multicolorido/bico/licença, favoritos, detalhes e importação de perfis 3MF. Usa o endpoint design2 observado no site e autenticação Bambu global persistente. Busca real validada com duas páginas de 100 resultados sem repetição; download autenticado confirmado no aplicativo: 3MF completo com configurações e três cores preservadas no arquivo (azul, branco e bege). O importador nativo solicita revisão de predefinições Bambu; selecionar U1 antes de fatiar. Não abrir páginas externas como substituto de integração.
 
-Preservar inicialmente o motor de fatiamento. Cada etapa deve produzir uma alteração revisável, com verificação proporcional ao impacto. Mudanças em fatiamento ou envio para a impressora exigem validação adicional antes do uso físico.
+O perfil de laboratório usa Brasil e português brasileiro. Os catálogos nativo e web foram completados e têm testes de cobertura; conteúdo de criadores, firmware e diálogos do sistema requerem avaliação separada. Ver detalhes em `U1-LAB.md`.
+
+Próximas validações: busca autenticada e download no Thingiverse; acesso às outras plataformas; conta em nuvem na região Brasil; revisão visual de telas menos usadas. Não prometer compatibilidade universal de projetos 3MF ou impressão física sem verificação.
 
 ## Desenvolvimento local e Git
 

@@ -4,7 +4,7 @@ Fork de [Snapmaker/OrcaSlicer](https://github.com/Snapmaker/OrcaSlicer), mantido
 
 O desenvolvimento começa localmente, com alterações versionadas no Git e sincronizadas com este repositório. Consulte [PROJECT.md](PROJECT.md) para escopo, próximos passos e fluxo de trabalho.
 
-Esta versão ainda não possui alterações funcionais nem instaladores próprios. Os downloads e instruções originais abaixo se referem ao projeto da Snapmaker. Este fork é independente e preserva a licença AGPL-3.0 e os créditos originais.
+A biblioteca experimental agora ocupa a página inicial, com catálogo Snapmaker, busca, filtros, favoritos e importação internos. A versão de laboratório inclui região Brasil e tradução pt_BR. O conector Thingiverse exige credencial; Printables e MakerWorld aguardam integração validada. Veja [U1-LAB.md](U1-LAB.md) para testar e consultar os limites. Os downloads originais abaixo pertencem à Snapmaker. Este fork é independente e preserva a licença AGPL-3.0 e os créditos originais.
 
 ---
 

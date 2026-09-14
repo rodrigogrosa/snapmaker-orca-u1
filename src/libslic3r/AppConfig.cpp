@@ -1355,6 +1355,8 @@ std::string AppConfig::get_country_code()
         return "CN";
     else if (region == "USA")
         return "US";
+    else if (region == "Brazil")
+        return "BR";
     else if (region == "Asia-Pacific")
         return "Others";
     else if (region == "Europe")

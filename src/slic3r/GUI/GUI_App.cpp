@@ -4517,7 +4517,7 @@ wxString GUI_App::get_international_url(const wxString& origin_url) {
     wxString lang = wxString::FromUTF8(app_config->get_language_code());
     wxString region = wxString::FromUTF8(app_config->get_country_code());
     if (region == "Others") {
-        region = "US";
+        region = lang == "pt" ? "BR" : "US";
     }
 
     string dark_mode = wxGetApp().app_config->get("dark_color_mode");
